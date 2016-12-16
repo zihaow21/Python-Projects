@@ -1,0 +1,3 @@
+In case if you do not know how to setup Spark on Mac, please refer to the previous story.
+Now that you have Spark installed and built on your mac. Let us make few changes to get the IDE running.
+Steps Set the variable in the bash_profile
