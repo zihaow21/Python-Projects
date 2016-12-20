@@ -22,7 +22,7 @@ class HighwayLayer(object):
 
             return y
 
-    def logits(self, x, input_dim, output_dim, depth):
+    def logit(self, x, input_dim, output_dim, depth):
         with tf.name_scope("layer-" + str(depth)):
 
             W = tf.Variable(tf.truncated_normal([input_dim, output_dim]), 'float', name='weights')

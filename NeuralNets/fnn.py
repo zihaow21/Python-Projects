@@ -41,9 +41,10 @@ class FNN(object):
                 if i != 0 and i != self.num_layers - 1:
                     y_dropout = l.drop(prev_y, dropout, i)
                     prev_y = l.batch_norm(y_dropout, dim[i], i)
+                    prev_y, loss = l.layer(prev_y, dim[i], dim[i + 1], i)
 
                 if i == self.num_layers - 1:
-                    logits, loss = l.logits(prev_y, dim[i], dim[i + 1], i)
+                    logits, loss = l.logit(prev_y, dim[i], dim[i + 1], i)
 
                 loss_l2 += loss
 
@@ -106,9 +107,10 @@ class FNN(object):
                 if i != 0 and i != self.num_layers - 1:
                     y_dropout = l.drop(prev_y, dropout, i)
                     prev_y = l.batch_norm(y_dropout, dim[i], i)
+                    prev_y = l.layer(prev_y, dim[i], dim[i + 1], i)
 
                 if i == self.num_layers - 1:
-                    sig_prob, loss = l.logits(prev_y, dim[i], dim[i + 1], i)
+                    sig_prob, loss = l.sigmoid(prev_y, dim[i], dim[i + 1], i)
 
                 loss_l2 += loss
 

@@ -17,7 +17,7 @@ class Layer(object):
 
             return y, loss_l2
 
-    def logits(self, x, input_dim, output_dim, depth):
+    def logit(self, x, input_dim, output_dim, depth):
         with tf.name_scope("layer-" + str(depth)):
 
             W = tf.Variable(tf.truncated_normal([input_dim, output_dim]), 'float', name='weights')
@@ -39,12 +39,12 @@ class Layer(object):
 
             return y, loss_l2
 
-    def drop(self, y, keep_prob, depth):
+    def drop(self, x, keep_prob, depth):
         with tf.name_scope("layer-" + str(depth)):
 
-            y_dropout = tf.nn.dropout(y, keep_prob, name='dropout')
+            y = tf.nn.dropout(x, keep_prob, name='dropout')
 
-            return y_dropout
+            return y
 
     def batch_norm(self, y, input_dim, depth):
         with tf.name_scope("layer-" + str(depth)):
@@ -53,6 +53,6 @@ class Layer(object):
             scale = tf.Variable(tf.ones([input_dim]), name='scale')
             shift = tf.Variable(tf.zeros([input_dim]), name='shift')
 
-            y_batch_norm = tf.nn.batch_normalization(y, batch_mean, batch_var, shift, scale, self.epsilon, name='batch_normalization')
+            y = tf.nn.batch_normalization(y, batch_mean, batch_var, shift, scale, self.epsilon, name='batch_normalization')
 
-            return y_batch_norm
+            return y
