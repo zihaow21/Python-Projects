@@ -28,7 +28,7 @@ meta_dir_fnn = '/Users/ZW/Dropbox/current/temp/MNIST_fnn.ckpt.meta'
 
 start_time = time.time()
 
-fcn = FNN(epochs=100, num_samples=num_samples, input_dim=input_dim, h1_nodes=100, h2_nodes=100, h3_nodes=100,
+fcn = FNN(epochs=100, num_layers=5, num_samples=num_samples, input_dim=input_dim, h1_nodes=100, h2_nodes=100, h3_nodes=100,
           num_classes=10, learning_rate=0.001, batch_size=100, model_dir=model_dir_fnn, meta_dir=meta_dir_fnn)
 
 acc_train_fnn, acc_test_fnn, loss_fnn = fcn.classify_train_test(data_train, label_train, data_test, label_test)
@@ -60,7 +60,7 @@ meta_dir_fnn_highway = '/Users/ZW/Dropbox/current/temp/MNIST_fnn_highway.ckpt.me
 
 start_time = time.time()
 
-hfcn = FNNHighWay(epochs=100, num_samples=num_samples, input_dim=input_dim, h1_nodes=100, h2_nodes=100, h3_nodes=100,
+hfcn = FNNHighWay(epochs=100, num_layers=5, num_samples=num_samples, input_dim=input_dim, h1_nodes=100, h2_nodes=100, h3_nodes=100,
     num_classes=10, learning_rate=0.0005, batch_size=100, model_dir=model_dir_fnn_highway, meta_dir=meta_dir_fnn_highway)
 
 acc_train_fnn_highway, acc_test_fnn_highway, loss_fnn_highway = fcn.classify_train_test(data_train, label_train, data_test, label_test)

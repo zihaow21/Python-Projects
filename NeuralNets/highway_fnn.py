@@ -6,9 +6,10 @@ from highway_full_layer import HighwayLayer
 
 
 class FNNHighWay(object):
-    def __init__(self, epochs, num_samples, input_dim, h1_nodes, h2_nodes, h3_nodes, num_classes,
+    def __init__(self, epochs, num_layers, num_samples, input_dim, h1_nodes, h2_nodes, h3_nodes, num_classes,
                  learning_rate, batch_size, model_dir, meta_dir):
         self.epochs = epochs
+        self.num_layers = num_layers
         self.num_samples = num_samples
         self.input_dim = input_dim
         self.h1_nodes = h1_nodes
@@ -31,16 +32,15 @@ class FNNHighWay(object):
             logits = None
 
             loss_l2 = tf.zeros([1], 'float')
-            input_dim = [self.input_dim, self.h1_nodes, self.h2_nodes, self.h3_nodes]
-            output_dim = [self.h1_nodes, self.h2_nodes, self.h3_nodes, self.num_classes]
+            dim = [self.input_dim, self.h1_nodes, self.h2_nodes, self.h3_nodes, self.num_classes]
 
-            for i in range(4):
+            for i in range(self.num_layers):
 
-                if i != 3:
-                    prev_y, loss = l.layer(x, input_dim[i], output_dim[i], i)
+                if i != self.num_layers - 1:
+                    prev_y, loss = l.layer(x, dim[i], dim[i + 1], i)
 
-                if i == 3:
-                    logits, loss = l.logits(prev_y, input_dim[i], output_dim[i], i)
+                if i == self.num_layers - 1:
+                    logits, loss = l.logits(prev_y, dim[i], dim[i + 1], i)
 
                 loss_l2 += loss
 
@@ -89,16 +89,15 @@ class FNNHighWay(object):
             sig_prob = None
 
             loss_l2 = tf.zeros([1], 'float')
-            input_dim = [self.input_dim, self.h1_nodes, self.h2_nodes, self.h3_nodes]
-            output_dim = [self.h1_nodes, self.h2_nodes, self.h3_nodes, self.num_classes]
+            dim = [self.input_dim, self.h1_nodes, self.h2_nodes, self.h3_nodes, self.num_classes]
 
-            for i in range(4):
+            for i in range(self.num_layers):
 
-                if i != 3:
-                    prev_y, loss = l.layer(x, input_dim[i], output_dim[i], i)
+                if i != self.num_layers - 1:
+                    prev_y, loss = l.layer(x, dim[i], dim[i + 1], i)
 
-                if i == 3:
-                    sig_prob, loss = l.sigmoid(prev_y, input_dim[i], output_dim[i], i)
+                if i == self.num_layers - 1:
+                    sig_prob, loss = l.sigmoid(prev_y, dim[i], dim[i + 1], i)
 
                 loss_l2 += loss
 
