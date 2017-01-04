@@ -69,7 +69,6 @@ class FNN(object):
 
             acc_train = np.zeros([1, 20])
             acc_test = np.zeros([1, 20])
-
             loss = np.zeros([1, 20])
 
             for i in tqdm(range(self.epochs)):
@@ -80,7 +79,7 @@ class FNN(object):
 
                 sess.run(optimizer, feed_dict={x: batch_data, y: batch_label, dropout: 0.5})
                 if i % 5 == 1:
-                    acc_train[0, (i-1)/5] = accuracy.eval(feed_dict={x: data_train, y: label_train, dropout: 1.0})
+                    acc_train[0, (i-1)/5] = accuracy.eval(feed_dict={x: batch_data, y: batch_label, dropout: 1.0})
                     print '\n The training accuracy for epoch {} is {}'.format(i, acc_train[0, (i-1)/5])
                     acc_test[0, (i-1)/5] = accuracy.eval(feed_dict={x: data_test, y: label_test, dropout: 1.0})
                     print '\n The testing accuracy for epoch {} is {}'.format(i, acc_test[0, (i-1)/5])

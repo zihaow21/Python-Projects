@@ -14,9 +14,6 @@ from NeuralNets.fnn import FNN
 # data = np.transpose(data_file['new_ff'])
 # label_file = si.loadmat('/Users/ZW/Downloads/label.mat')
 # label = label_file['label']
-
-data = []
-
 # data_file = si.loadmat('/Users/ZW/Downloads/BRCA_version2.mat')
 # data = np.transpose(data_file['BRCA_new_features'])
 # label = data_file['BRCA_labels']
@@ -29,13 +26,12 @@ label = label_file['label']
 model_dir = '/Users/ZW/Dropbox/current/Python-Projects/Tasks/SurvivalAnalysis/FNN.ckpt'
 meta_dir = '/Users/ZW/Dropbox/current/Python-Projects/Tasks/SurvivalAnalysis/FNN.ckpt.meta'
 
-n_slits = 5
+n_splits = 5
 
-for i in range(5):
-    ss = ShuffleSplit(n_splits=n_slits, test_size=0.25, random_state=0)
+ss = ShuffleSplit(n_splits=n_splits, test_size=0.25, random_state=0)
 
-    acc_train = np.zeros([5, 20])
-    acc_test = np.zeros([5, 20])
+acc_train = np.zeros([n_splits, 20])
+acc_test = np.zeros([n_splits, 20])
 
 # # define number of features extracted by the feature extraction method
 # num_features = 100
@@ -48,23 +44,28 @@ for i in range(5):
 # pca = Pca(num_features)
 # data = pca.extraction(data)
 
-    shape = np.shape(data)
-    num_data = shape[0]
-    input_dim = shape[1]
+shape = np.shape(data)
+num_data = shape[0]
+input_dim = shape[1]
+num_layers = 3
 
-    num_samples = np.int(num_data * (1 - 0.25))
+num_samples = np.int(num_data * (1 - 0.25))
 
-    for train_index, test_index in ss.split(data):
-        data_train = data[train_index, :].astype(np.float32)
-        data_test = data[test_index, :].astype(np.float32)
-        label_train = label[train_index, :]
-        label_test = label[test_index, :]
+i = 0
 
-        fnn = FNN(epochs=101, num_samples=num_samples, input_dim=input_dim, h1_nodes=200, h2_nodes=200, h3_nodes=200, num_classes=2,
-                learning_rate=0.005, batch_size=300, l2_lambda=0.005, model_dir=model_dir, meta_dir=meta_dir)
-        acc_n, acc_t = fnn.classify_train_test(data_train, label_train, data_test, label_test)
-        acc_train[i, :] = acc_n
-        acc_test[i, :] = acc_t
+for train_index, test_index in ss.split(data):
+    data_train = data[train_index, :].astype(np.float32)
+    data_test = data[test_index, :].astype(np.float32)
+    label_train = label[train_index, :]
+    label_test = label[test_index, :]
+
+    fnn = FNN(epochs=101, num_layers=num_layers, num_samples=num_samples, input_dim=input_dim, h1_nodes=200, h2_nodes=200, h3_nodes=200, num_classes=2,
+            learning_rate=0.005, batch_size=300, l2_lambda=0.005, model_dir=model_dir, meta_dir=meta_dir)
+    acc_n, acc_t, total_loss = fnn.classify_train_test(data_train, label_train, data_test, label_test)
+    acc_train[i, :] = acc_n
+    acc_test[i, :] = acc_t
+
+    i += 1
 
 acc_train = np.mean(acc_train)
 acc_test = np.mean(acc_test)

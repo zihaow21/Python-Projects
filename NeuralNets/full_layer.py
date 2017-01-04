@@ -10,7 +10,7 @@ class Layer(object):
         with tf.name_scope("layer-" + str(depth)):
 
             W = tf.Variable(tf.truncated_normal([input_dim, output_dim]), 'float', name='weights')
-            b = tf.Variable(tf.truncated_normal([output_dim]), 'float', name='bias')
+            b = tf.Variable(tf.zeros([output_dim]), 'float', name='bias')
 
             y = tf.nn.relu(tf.matmul(x, W) + b, name='activation')
             loss_l2 = self.l2_lambda * (tf.nn.l2_loss(W) + tf.nn.l2_loss(b))
@@ -21,7 +21,7 @@ class Layer(object):
         with tf.name_scope("layer-" + str(depth)):
 
             W = tf.Variable(tf.truncated_normal([input_dim, output_dim]), 'float', name='weights')
-            b = tf.Variable(tf.truncated_normal([output_dim]), 'float', name='bias')
+            b = tf.Variable(tf.zeros([output_dim]), 'float', name='bias')
 
             y = tf.matmul(x, W) + b
             loss_l2 = self.l2_lambda * (tf.nn.l2_loss(W) + tf.nn.l2_loss(b))
@@ -32,7 +32,7 @@ class Layer(object):
         with tf.name_scope("layer-" + str(depth)):
 
             W = tf.Variable(tf.truncated_normal([input_dim, output_dim]), 'float', name='weights')
-            b = tf.Variable(tf.truncated_normal([output_dim]), 'float', name='bias')
+            b = tf.Variable(tf.zeros([output_dim]), 'float', name='bias')
 
             y = tf.nn.sigmoid(tf.matmul(x, W) + b, name='activation')
             loss_l2 = self.l2_lambda * (tf.nn.l2_loss(W) + tf.nn.l2_loss(b))
