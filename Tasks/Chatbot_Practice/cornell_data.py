@@ -15,14 +15,13 @@ class CornellData(object):
     def loadLines(self):
         lines = {}
 
-        with io.open(self.movie_line_fileName, 'r', encoding='iso-8859-1') as f:
+        with io.open(self.movie_line_fileName, 'r', errors='ignore') as f:
             for line in f:
-                values = line.split("+++$+++")
+                values = line.split(" +++$+++ ")
 
                 lineObj = {}
                 for i, field in enumerate(self.movie_line_fields):
                     lineObj[field] = values[i]
-
                 lines[lineObj['lineID']] = lineObj
 
         return lines
@@ -30,16 +29,15 @@ class CornellData(object):
     def loadConversations(self):
         conversations = []
 
-        with io.open(self.movie_conversation_fileName, 'r', encoding='iso-8859-1') as f:
+        with io.open(self.movie_conversation_fileName, 'r', errors='ignore') as f:
             for line in f:
-                values = line.split("+++$+++")
+                values = line.split(" +++$+++ ")
 
                 convObj = {}
                 for i, field in enumerate(self.movie_conversation_fields):
                     convObj[field] = values[i]
 
                 lineIDs = eval(convObj["utteranceIDs"])
-
                 convObj["lines"] = []
                 for lineID in lineIDs:
                     convObj["lines"].append(self.lines[lineID])
