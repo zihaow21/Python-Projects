@@ -1,4 +1,3 @@
-# -*- coding: <UTF-8> -*-
 from __future__ import division
 
 import io
@@ -8,7 +7,7 @@ import random
 import ast
 from tqdm import tqdm
 
-main_dir = "/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework1/"
+main_dir = "/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework0/"
 
 file_path = main_dir + "w2_.txt"
 processed_data = main_dir + "bi-gram-model.txt"
