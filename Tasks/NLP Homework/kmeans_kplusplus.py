@@ -21,11 +21,19 @@ class K_Kplusplus_Means(object):
             similarity = np.divide(np.dot(doc_matrix, np.array(vector)), norms)
             simi_matrix = np.vstack((simi_matrix, similarity))
 
-        return vecs_init, simi_matrix, labels
+        return simi_matrix, labels
 
     def kmeans(self):
-        centroids, simi, labels = self.mat_simi()
+        simi_matrix, labels = self.mat_simi()
+        _labels = np.argmin(simi_matrix, axis=0)
+        self.vectors = [(labels[i], _labels[i], vc[1] for i, vc in enumerate(self.vectors))]
+        c = 0
+        for i in range(len(self.vectors)):
+            if self.vectors[i][0] == self.vectors[i+1][0] and self.vectors[i][1] == self.vectors[i+1][0]:
+                c += 1
 
+        while c != len(self.vectors):
+            self.kmeans()
 
     def kmeansPlusplus(self):
         pass
