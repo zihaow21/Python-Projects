@@ -1,3 +1,4 @@
+###The code is modified based on https://github.com/Conchylicultor/DeepQA
 import numpy as np
 from cornell_data import CornellData
 
