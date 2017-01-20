@@ -8,32 +8,31 @@ class K_Kplusplus_Means(object):
         self.vectors = vectors
         self.length = len(self.vectors)
         self.num_random_vec = num_random_vec
+        self.labels_temp = []
+        self.random_int = [random.randint(0, self.length) for i in range(self.num_random_vec)]
+        self.vecs_init = [vc[1] for vc in self.vectors[self.random_int]]
+        self.labels = [l[0] for l in self.vectors]
 
     def mat_simi(self):
-        random_int = [random.randint(0, self.length) for i in range(self.num_random_vec)]
-        vecs_init = [vc[1] for vc in self.vectors[random_int]]
-
-        labels = [l[0] for l in self.vectors]
         norms = np.array([nl.norm(v[1]) for v in self.vectors])
         doc_matrix = np.array([t[1] for t in self.vectors])
         simi_matrix = np.array([])
-        for vector in vecs_init:
+        for vector in self.vecs_init:
             similarity = np.divide(np.dot(doc_matrix, np.array(vector)), norms)
             simi_matrix = np.vstack((simi_matrix, similarity))
 
-        return simi_matrix, labels
+        return simi_matrix
 
     def kmeans(self):
-        simi_matrix, labels = self.mat_simi()
-        _labels = np.argmin(simi_matrix, axis=0)
-        self.vectors = [(labels[i], _labels[i], vc[1] for i, vc in enumerate(self.vectors))]
-        c = 0
-        for i in range(len(self.vectors)):
-            if self.vectors[i][0] == self.vectors[i+1][0] and self.vectors[i][1] == self.vectors[i+1][0]:
-                c += 1
+        simi_matrix = self.mat_simi()
+        self.labels_temp = np.argmin(simi_matrix, axis=0)
+        self.vectors = [(self.labels[i], self.labels_temp[i], vc[1] for i, vc in enumerate(self.vectors))]
 
-        while c != len(self.vectors):
+        while self.labels_temp != _labels:
             self.kmeans()
+            self.labels_temp = _labels
+
+
 
     def kmeansPlusplus(self):
         pass
