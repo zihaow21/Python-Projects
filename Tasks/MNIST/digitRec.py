@@ -49,9 +49,9 @@ plt.title('performance of fully connected neural network')
 
 plt.figure(2)
 plt.plot(x, np.reshape(loss_fnn, [20, ]), 'b-')
-plt.legend('loss')
+plt.legend(['loss'])
 plt.xlabel('iteration')
-plt.ylabel(['loss'])
+plt.ylabel('loss')
 plt.title('cost of fully connected neural network')
 
 ### highway fully connected neural network
