@@ -25,10 +25,10 @@ class Vocabulary(object):
         """
         words = []
 
-        sentenceToken = nltk.sent_tokenize(line)
+        sentencesToken = nltk.sent_tokenize(line)
 
-        for i in range(len(sentenceToken)):
-            if not isTarget:
+        for i in range(len(sentencesToken)):
+            tokens = nltk.word_tokenize(sentencesToken[i])
 
 
 
