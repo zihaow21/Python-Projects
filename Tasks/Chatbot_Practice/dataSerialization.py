@@ -7,7 +7,14 @@ import os
 import random
 
 
-class Vocabulary(object):
+class Batch(object):
+    def __init__(self):
+        self.encoderSeqs = []
+        self.decoderSeqs = []
+        self.targetSeqs = []
+        self.weights = []
+
+class DataSerialization(object):
     def __init__(self, args):
         self.args = args
 
@@ -97,9 +104,86 @@ class Vocabulary(object):
 
         return wordId
 
-    def
+    def getBatches(self):
+        """
+        Prepare the batches for the current epoch
+        :return:
+        """
+        self.shuffle()
 
+        batches = []
+
+        def genNextSamples():
+            for i in range(0, self.getSampleSize(), self.args.batchSize):
+                yield self.trainingSamples[i: min(i + self.args.batchSize, self.getSampleSize())]
+
+        for samples in genNextSamples():
+            batch = self._createBatch(samples)
+            batches.append(batch)
+
+        return batches
 
     def shuffle(self):
         random.shuffle(self.trainingSamples)
 
+    def _createBatch(self, samples):
+        """
+        Create a single batch from the list of samples. The batch size is automatically defined by the number of samples
+        given.
+        The inputs should already be inverted. The target should already have <go> and <eos>.
+        :param samples: a list of samples, each sample being on the form [input, target]
+        :return: Batch: a batch object
+        """
+        batch = Batch()
+        batchSize = len(samples)
+
+        # create the batch tensor
+        for i in range(batchSize):
+            sample = samples[i]
+            # if not self.args.test and self.args.watsonMode: # watson mode: invert question and answer to be [target, input]
+            #     sample = list(reversed(sample))
+            batch.encoderSeqs.append(sample[0])
+            # batch.encoderSeqs.append(list(reversed(sample[0]))) # reverse inputs (and not outputs) little trick as defined in the original paper
+            batch.decoderSeqs.append([self.goToken] + sample[1] + [self.eosToken])
+            batch.targetSeqs.append(batch.decoderSeqs[batch.decoderSeqs[-1][1:]]) # same as decoder, but shifted to the left (ignore the <go>)
+
+            # # Long sentences should be filtered during the dataset creation
+            # assert len(batch.encoderSeqs[i]) <= self.args.maxLengthEnco
+            # assert len(batch.decoderSeqs[i]) <= self.args.maxLengthDeco
+
+            # add padding and define weights
+            batch.encoderSeqs[i] = batch.encoderSeqs[i] + [self.padToken] * (self.args.maxLengthEnco - len(batch.encoderSeqs[i])) # right padding for the input
+            # batch.encoderSeqs[i] = [self.padToken] * (self.args.maxLengthEnco - len(batch.encoderSeqs[i])) + batch.encoderSeqs[i] # left padding for the input if input is reversed
+            batch.weights.append([1.0] * len(batch.targetSeqs[i]) + [0.0] * (self.args.maxLengthEnco - len(batch.targetSeqs[i])))
+            batch.decoderSeqs[i] = batch.decoderSeqs + [self.padToken] * (self.args.maxLengthDeco - len(batch.decoderSeqs[i]))
+            batch.targetSeqs[i] = batch.decoderSeqs[i] + [self.padToken] * (self.args.maxLengthDeco - len(batch.targetSeqs[i]))
+
+        # reshape the batch so that the batch of words are organized to comply with the cells in order
+        encoderSeqsT = []
+        for i in range(self.args.maxLengthEnco):
+            encoderSeqT = []
+            for j in range(batchSize):
+                encoderSeqT.append(batch.encoderSeqs[j][i])
+            encoderSeqsT.append(encoderSeqT)
+        batch.encoderSeqs = encoderSeqsT
+
+        decoderSeqsT = []
+        targetSeqsT = []
+        weightsT = []
+        for i in range(self.args.maxLengthDeco):
+            decoderSeqT = []
+            targetSeqT = []
+            weightT = []
+
+            for j in range(batchSize):
+                decoderSeqT.append(batch.decoderSeqs[j][i])
+                targetSeqT.append(batch.targetSeqs[j][i])
+                weightT.append(batch.weights[j][i])
+            decoderSeqsT.append(decoderSeqT)
+            targetSeqsT.append(targetSeqT)
+            weightsT.append(weightT)
+        batch.decoderSeqs = decoderSeqsT
+        batch.targetSeqs = targetSeqsT
+        batch.weights = weightsT
+
+        return
