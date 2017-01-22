@@ -227,4 +227,33 @@ class DataSerialization(object):
 
         return ' '.join(sentence)
 
-    
+    def batchVec2Sent(self, batchVec, seqId=0, **kwargs):
+        """
+        convert a list of integers into an actural readable sentence for a batch, which is a reshaped into a batch format
+        :param batchVec: the batch format sentence
+        :param seqId: the position of the sequence in a batch
+        :param kwargs: the formatting options as in vec2sent
+        :return: the actural sentence
+        """
+        sequence = []
+        for i in range(len(batchVec)):
+            sequence.append(batchVec[i][seqId])
+
+        return self.vec2sent(sequence, **kwargs)
+
+    def sent2enco(self, sentence):
+        """
+        encode a sequence and return a batch as an input for the model
+        :return: a batch object containing the sentence, or none if something went wrong
+        """
+        if sentence == '':
+            return None
+
+        # devide the sentence into tokens
+        tokens = nltk.word_tokenize(sentence)
+        if len(tokens) > self.args.maxLength:
+            return None
+
+        # convert tokens into word ids
+        wordIds = []
+        
