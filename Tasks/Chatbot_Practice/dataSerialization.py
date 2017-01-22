@@ -36,6 +36,19 @@ class DataSerialization(object):
 
         return len(self.word2id)
 
+    def sent2vec(self, conversations):
+        """
+        Extract data from the given vocabulary
+        """
+        # add standard tokens
+        self.padToken = self.getWordId("<pad>")
+        self.goToken = self.getWordId("<go>")
+        self.eosToken = self.getWordId("<eos")
+        self.unknownToken = self.getWordId("<unknown>")
+
+        for conversation in tqdm(conversations, desc="Extracting conversations"):
+            self.extractConversation(conversation)
+
     def extractConversation(self, conversation):
         for i in range(len(conversation['lines']) - 1): # ignore the last line(no answer for it
             inputLine = conversation["lines"][i]
@@ -187,3 +200,31 @@ class DataSerialization(object):
         batch.weights = weightsT
 
         return
+
+    def vec2sent(self, sequence, clean=False, reverse=False):
+        """
+        convert a list of integers into a human readable string
+        :param sequence: the list of integers representing a sentence
+        :param clean: indicate if removing the <go>, <pad>, and <eos> tokens
+        :param reverse: for the input, option to restore the standard order
+        :return: the actural sentence
+        """
+        if not sequence:
+            return ''
+
+        if not clean:
+            return ' '.join([self.id2word[idx] for idx in sequence])
+
+        sentence = []
+        for wordId in sequence:
+            if wordId == self.eosToken: # end of the generated sentence
+                break
+            elif wordId != self.padToken and wordId != self.goToken:
+                sentence.append(self.id2word[wordId])
+
+        if reverse:
+            sentence.reverse()
+
+        return ' '.join(sentence)
+
+    
