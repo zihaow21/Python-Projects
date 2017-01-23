@@ -79,7 +79,6 @@ class Model:
         self.buildNetwork()
 
     def buildNetwork(self):
-        # TODO: use buckets
 
         # parameters of sampled softmax (for attention mechanism and a large vocabulary size)
         outputProjection = None
