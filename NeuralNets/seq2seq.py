@@ -1,5 +1,6 @@
 # Copyright 2015 Conchylicultor. All Rights Reserved.
-# Modifications copyright (C) 2016 Carlos Segura, 2017 Zihao Wang
+# Modifications copyright (C) 2016 Carlos Segura
+# Modifications copyright (C) 2017 Zihao Wang
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-# Codes are modified based on the work of above author
 
 import numpy as np
 import tensorflow as tf
@@ -68,7 +68,7 @@ class Model:
 
         # placeholders
         self.encoderInputs = None
-        self.decoderInputself = None  # same as the decoder targets but plus the <go> token
+        self.decoderInputs = None  # same as the decoder targets but plus the <go> token
         self.decoderTargets = None
         self.decoderWeights = None  #
 
@@ -104,5 +104,70 @@ class Model:
         enco_decoCell = tf.nn.rnn_cell.LSTMCell(self.args.hiddenSize, state_is_tuple=True)
 
         if not self.args.test:
-            enco_decoCell = tf.nn.dro
-            enco_decoCell = tf.nn.rnn_cell.MultiRNNell()
+            enco_decoCell = tf.nn.rnn_cell.DropoutWrapper(enco_decoCell, input_keep_prob=1.0, output_keep_prob=0.5)
+        enco_decoCell = tf.nn.rnn_cell.MultiRNNCell([enco_decoCell] * self.args.numLayers, state_is_tuple=True)
+
+        # Network input (placeholders)
+
+        with tf.name_scope('placeholder_encoder'):
+            self.encoderInputs = [tf.placeholder(tf.int32, [None, ]) for _ in range(self.args.maxLengthEnco)]  # batchsize * sequence length * input dim
+
+        with tf.name_scope('placeholder_decoder'):
+            self.decoderInputs = [tf.placeholder(tf.int32, [None, ], name='inputs') for _ in range(self.args.maxLengthDeco)]
+            self.decoderTargets = [tf.placeholder(tf.int32, [None, ], name='targets') for _ in range(self.args.maxLengthDeco)]
+            self.decoderWeights = [tf.placeholder(tf.float32, [None, ], name='weights') for _ in range(self.args.maxLengthDeco)]
+
+        # Define the network
+        decoderOutputs, states = tf.nn.seq2seq.embedding_attention_seq2seq(encoder_inputs=self.encoderInputs,
+                                                                          decoder_inputs=self.decoderInputs,
+                                                                          cell=enco_decoCell,
+                                                                          num_encoder_symbols=self.dataSerilization.getVocabularySize(),
+                                                                          num_decoder_symbols=self.dataSerilization.getVocabularySize(),
+                                                                          embedding_size=self.args.embeddingSize,
+                                                                          output_projection=outputProjection.getWeights() if outputProjection else None,
+                                                                          feed_previous=bool(self.args.test))
+        # for tesing
+        if self.args.test:
+            if not outputProjection:
+                self.outputs = decoderOutputs
+            else:
+                self.outputs = [outputProjection(output) for output in decoderOutputs]
+        # for training
+        else:
+            self.lossFunc = tf.nn.seq2seq.sequence_loss(decoderOutputs,
+                                                        self.decoderTargets,
+                                                        self.decoderWeights,
+                                                        self.dataSerilization.getVocabularySize(),
+                                                        softmax_loss_function=sampledSoftmax if outputProjection else None)
+
+        # Initialize the optimizer
+        opt = tf.train.AdamOptimizer(learning_rate=self.args.learningRate, beta1=0.9, beta2=0.999, epsilon=1e08)
+        self.optOp = opt.minimize(self.lossFunc)
+
+    def step(self, batch):
+        """
+        does not run on itself, just return the operators
+        :param ops: a tuple of the (optimization, loss function) for training or (outputs, ) for testing
+        :param feedDict: the feedDict for placeholder feeding
+        """
+        feedDict = {}
+        ops = None
+
+        if not self.args.test:  # training
+            for i in range(self.args.maxLengthEnco):
+                feedDict[self.encoderInputs[i]] = batch.encoderSeqs[i]
+
+            for i in range(self.args.maxLengthDeco):
+                feedDict[self.decoderInputs[i]] = batch.decoderSeqs[i]
+                feedDict[self.decoderTargets[i]] = batch.targetSeqs[i]
+                feedDict[self.decoderWeights[i]] = batch.weights[i]
+
+            ops = (self.optOp, self.lossFunc)
+        else:  # training
+            for i in range(self.args.maxLengthEnco):
+                feedDict[self.encoderInputs[i]] = batch.encoderSeqs[i]
+            feedDict[self.decoderInputs[0]] = [self.dataSerilization.goToken]
+
+            ops = (self.outputs, )
+
+        return ops, feedDict
