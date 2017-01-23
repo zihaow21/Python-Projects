@@ -217,7 +217,7 @@ class DataSerialization(object):
 
         sentence = []
         for wordId in sequence:
-            if wordId == self.eosToken: # end of the generated sentence
+            if wordId == self.eosToken:  # end of the generated sentence
                 break
             elif wordId != self.padToken and wordId != self.goToken:
                 sentence.append(self.id2word[wordId])
@@ -256,4 +256,23 @@ class DataSerialization(object):
 
         # convert tokens into word ids
         wordIds = []
-        
+        for token in tokens:
+            wordIds.append(self.getWordId(token, create=False))  # create the vocabulary and the training sentences
+
+        # creating the batch (add padding, reverse)
+        batch = self._createBatch([[wordIds, []]])  # mono batch
+
+        return batch
+
+    def deco2sentence(self, decoderOutputs):
+        """
+        decode the output of the decoder and return a human friendly sentence
+        :param decoderOutputs: selected words by the highest prediction score
+        :return: the raw generated sentence
+        """
+        sequence = []
+
+        for output in decoderOutputs:
+            sequence.append(np.argmax(output))  # adding each predicted word id
+
+        return sequence
