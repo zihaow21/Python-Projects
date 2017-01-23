@@ -24,7 +24,7 @@ class ProjectOp:
 
         return self.W, self.b
 
-    def deco2vocab(self, X):
+    def __call__(self, X):
         """
         project the output of the decoder into the vocabulary space
         :param X: input value
