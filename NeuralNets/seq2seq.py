@@ -1,5 +1,5 @@
 # Copyright 2015 Conchylicultor. All Rights Reserved.
-# Modifications copyright (C) 2016 Carlos Segura, Zihao Wang
+# Modifications copyright (C) 2016 Carlos Segura, 2017 Zihao Wang
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
