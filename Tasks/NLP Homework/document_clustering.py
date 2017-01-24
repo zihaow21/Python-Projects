@@ -5,8 +5,8 @@ import numpy as np
 import math
 
 
-# INPUT = "/home/zwan438/temp_folder/HomeworkFiles/docs.trn.tsv"
-INPUT = "/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework1/docs.trn.tsv"
+INPUT = "/home/zwan438/temp_folder/HomeworkFiles/docs.trn.tsv"
+# INPUT = "/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework1/docs.trn.tsv"
 f = open(INPUT)
 kc = 7
 
@@ -80,81 +80,94 @@ def mean_cal(group):
 def compare(dist):
     distance = []
     for y in range(len(dist[0])):
-        distance.append(min(np.array(dist)[:, y]))
+        distance.append(max(np.array(dist)[:, y]))
 
     return distance
 
-def centroid_add(centroids, tf_idf):
-    length = len(centroids)
+def centroid_add(centroids_ad, data_input_ad):
+    length = len(centroids_ad)
     dist = [[] for _ in range(length)]
-    for q, centroid in enumerate(centroids):
-        for it in tf_idf:
+    for q, centroid in enumerate(centroids_ad):
+        for it in data_input_ad:
             dist[q].append(cosine(it[1], centroid))
 
     distance = compare(dist)
     d_2 = [distance[l] ** 2 for l in range(len(distance))]
     sum_d_2 = sum(d_2)
     d_2 = [ele / sum_d_2 for ele in d_2]
+
     cum = 0
-    cummulative = []
+    cummulative = [0]
     for x in range(len(d_2)):
         cum += d_2[x]
         cummulative.append(cum)
 
     rn = random.random()
     for v in range(len(cummulative) - 1):
-        if cummulative[v] <= rn <= cummulative[v + 1]:
+        if cummulative[v] < rn < cummulative[v + 1]:
             return tf_idf[v + 1][1]
 
 
-def centroid_init(tf_idf_ci):
+def centroid_init(data_input_ci):
     random_int_ci = random.randint(0, D)
-    centroids_ci = [tf_idf_ci[random_int_ci][1]]  # in the form of {'shop': 17.19, 'and': 0.38, ...})
+    centroids_ci = [data_input_ci[random_int_ci][1]]  # in the form of {'shop': 17.19, 'and': 0.38, ...})
     for _ in range(6):
-            centroids_ci.append(centroid_add(centroids_ci, tf_idf_ci))
+            centroids_ci.append(centroid_add(centroids_ci, data_input_ci))
 
     return centroids_ci
 
+# using tfidf
+data_input = tf_idf
 
-# kmeans ++
-centroids = centroid_init(tf_idf)
+# # using bag of words
+# data_input = tf
+for _ in range(4):
+    # kmeans ++
+    centroids = centroid_init(data_input)
 
 
-# # kmeans
-# random_int = [random.randint(0, D) for _ in range(kc)]
-# centroids = [tf_idf[p][1] for p in random_int]  # in the form of [{'shop': 17.19, 'and': 0.38, ...}), ...]
+    # # kmeans
+    # random_int = [random.randint(0, D) for _ in range(kc)]
+    # centroids = [data_input[p][1] for p in random_int]  # in the form of [{'shop': 17.19, 'and': 0.38, ...}), ...]
 
-# common
-change = True
-purity = 0
+    # common
+    change = True
+    purity = 0
 
-while change:
-    cluster = [[] for _ in range(kc)]
-    purity_temp = [0] * kc
-    for item in tf_idf:
-        cn = clustering(item, centroids)
-        cluster[cn].append(item)
+    while change:
+        cluster = [[] for _ in range(kc)]
+        purity_temp = [0] * kc
+        for item in data_input:
+            cn = clustering(item, centroids)
+            cluster[cn].append(item)
 
-    for j in range(kc):
-        label = []
-        for item in cluster[j]:
-            label.append(item[0])
+        for j in range(kc):
+            label = []
+            for item in cluster[j]:
+                label.append(item[0])
+            if label == []:
+                break
 
-        label_common = max(set(label), key=label.count)
-        counter = Counter(label)
-        purity_temp[j] = counter[label_common]
-    print D
+            label_common = max(set(label), key=label.count)
+            counter = Counter(label)
+            purity_temp[j] = counter[label_common]
+
+        if label == []:
+            centroids = centroid_init(data_input)
+            continue
+
+
+        p_temp = sum(purity_temp) / D
+
+        if p_temp == purity:
+            change = False
+
+        else:
+
+            purity = p_temp
+
+            for k in range(kc):
+                centroids[k] = mean_cal(cluster[k])
+    print(purity)
     print purity_temp
-    p_temp = sum(purity_temp) / D
-
-    if p_temp == purity:
-        change = False
-
-    else:
-        print(purity)
-        purity = p_temp
-
-        for k in range(kc):
-            centroids[k] = mean_cal(cluster[k])
-
 
