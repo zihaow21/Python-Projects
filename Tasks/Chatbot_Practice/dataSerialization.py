@@ -2,8 +2,6 @@
 import numpy as np
 import nltk # for tokenize
 from tqdm import tqdm
-import math
-import os
 import random
 
 

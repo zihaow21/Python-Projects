@@ -47,6 +47,7 @@ class ProjectOp:
         with tf.name_scope(self.scope):
             return tf.matmul(X, self.W) + self.b
 
+
 class Model:
     """
     implementation of a seq2seq model
@@ -60,7 +61,7 @@ class Model:
         """
         print("Model creation...")
 
-        self.dataSerilization = dataSerialization
+        self.dataSerialization = dataSerialization
         self.args = args
         self.dtype = tf.float32
 
@@ -83,8 +84,8 @@ class Model:
         # parameters of sampled softmax (for attention mechanism and a large vocabulary size)
         outputProjection = None
         # Sampled softmax size is less than the vocabulary size
-        if 0 < self.args.softmaxSamples < self.dataSerilization.getVocabularySize():
-            outputProjection = ProjectOp((self.args.hiddenSize, self.dataSerilization.getVocabularySize()), scope='soft_projection', dtype=self.dtype)
+        if 0 < self.args.softmaxSamples < self.dataSerialization.getVocabularySize():
+            outputProjection = ProjectOp((self.args.hiddenSize, self.dataSerialization.getVocabularySize()), scope='soft_projection', dtype=self.dtype)
 
             def sampledSoftmax(inputs, labels):
                 labels = tf.reshape(labels, [-1, 1])  # add one more dimension, ex. turn [1, 0, 1, 1] to [[1], [0], [1], [1]]
@@ -94,7 +95,7 @@ class Model:
                 localInputs = tf.cast(inputs, tf.float32)
 
                 return tf.cast(tf.nn.sampled_softmax_loss(localW, localB, localInputs, labels, self.args.softmaxSamples,
-                                                          self.dataSerilization.getVocabularySize()), self.dtype)
+                                                          self.dataSerialization.getVocabularySize()), self.dtype)
 
         # create rnn cells
         # enco_decoCell = tf.nn.rnn_cell.GRUCell
@@ -118,8 +119,8 @@ class Model:
         decoderOutputs, states = tf.nn.seq2seq.embedding_attention_seq2seq(encoder_inputs=self.encoderInputs,
                                                                           decoder_inputs=self.decoderInputs,
                                                                           cell=enco_decoCell,
-                                                                          num_encoder_symbols=self.dataSerilization.getVocabularySize(),
-                                                                          num_decoder_symbols=self.dataSerilization.getVocabularySize(),
+                                                                          num_encoder_symbols=self.dataSerialization.getVocabularySize(),
+                                                                          num_decoder_symbols=self.dataSerialization.getVocabularySize(),
                                                                           embedding_size=self.args.embeddingSize,
                                                                           output_projection=outputProjection.getWeights() if outputProjection else None,
                                                                           feed_previous=bool(self.args.test))
@@ -134,7 +135,7 @@ class Model:
             self.lossFunc = tf.nn.seq2seq.sequence_loss(decoderOutputs,
                                                         self.decoderTargets,
                                                         self.decoderWeights,
-                                                        self.dataSerilization.getVocabularySize(),
+                                                        self.dataSerialization.getVocabularySize(),
                                                         softmax_loss_function=sampledSoftmax if outputProjection else None)
 
         # Initialize the optimizer
@@ -163,7 +164,7 @@ class Model:
         else:  # training
             for i in range(self.args.maxLengthEnco):
                 feedDict[self.encoderInputs[i]] = batch.encoderSeqs[i]
-            feedDict[self.decoderInputs[0]] = [self.dataSerilization.goToken]
+            feedDict[self.decoderInputs[0]] = [self.dataSerialization.goToken]
 
             ops = (self.outputs, )
 

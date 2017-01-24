@@ -13,7 +13,6 @@
 # limitations under the License.
 # ==============================================================================
 import numpy as np
-from cornell_data import CornellData
 import argparse  # command line parsing
 import configparser  # saving the model parameters
 import datetime  # chronometer
@@ -21,7 +20,6 @@ import os
 import tensorflow as tf
 from tqdm import tqdm
 from dataSerialization import DataSerialization
-from NeuralNets.seq2seq import Model
 
 
 class ChitChat:
