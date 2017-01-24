@@ -5,7 +5,8 @@ import numpy as np
 import math
 
 
-INPUT = "/home/zwan438/temp_folder/HomeworkFiles/docs.trn.tsv"
+# INPUT = "/home/zwan438/temp_folder/HomeworkFiles/docs.trn.tsv"
+INPUT = "/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework1/docs.trn.tsv"
 f = open(INPUT)
 kc = 7
 
@@ -35,6 +36,7 @@ for doc in tf:
 
 # tf is the bag of words representation for each doc, tf_idf is the tfidf representation for each doc
 
+
 def cosine(d1, d2):
     num = den1 = den2 = 0.0
 
@@ -42,13 +44,11 @@ def cosine(d1, d2):
         den1 += v1**2
         if k in d2: num += v1 * d2[k]
 
-    if d2 == []:
-        print d2
-
     for v2 in d2.values():
         den2 += v2**2
 
     return float(num) / (math.sqrt(den1) * math.sqrt(den2))
+
 
 def clustering(item, centroids):
     dict = item[1]
@@ -59,6 +59,7 @@ def clustering(item, centroids):
     index = np.argmax(dist)
 
     return index
+
 
 def mean_cal(group):
     den = len(group)
@@ -76,11 +77,54 @@ def mean_cal(group):
 
     return centroid
 
+def compare(dist):
+    distance = []
+    for y in range(len(dist[0])):
+        distance.append(min(np.array(dist)[:, y]))
 
-# kmeans
-random_int = [random.randint(0, len(tf_idf)) for _ in range(kc)]
-centroids = [tf_idf[p][1] for p in random_int]  # in the form of [('AA', {'shop': 17.19, 'and': 0.38, ...}), ...]
+    return distance
 
+def centroid_add(centroids, tf_idf):
+    length = len(centroids)
+    dist = [[] for _ in range(length)]
+    for q, centroid in enumerate(centroids):
+        for it in tf_idf:
+            dist[q].append(cosine(it[1], centroid))
+
+    distance = compare(dist)
+    d_2 = [distance[l] ** 2 for l in range(len(distance))]
+    sum_d_2 = sum(d_2)
+    d_2 = [ele / sum_d_2 for ele in d_2]
+    cum = 0
+    cummulative = []
+    for x in range(len(d_2)):
+        cum += d_2[x]
+        cummulative.append(cum)
+
+    rn = random.random()
+    for v in range(len(cummulative) - 1):
+        if cummulative[v] <= rn <= cummulative[v + 1]:
+            return tf_idf[v + 1][1]
+
+
+def centroid_init(tf_idf_ci):
+    random_int_ci = random.randint(0, D)
+    centroids_ci = [tf_idf_ci[random_int_ci][1]]  # in the form of {'shop': 17.19, 'and': 0.38, ...})
+    for _ in range(6):
+            centroids_ci.append(centroid_add(centroids_ci, tf_idf_ci))
+
+    return centroids_ci
+
+
+# kmeans ++
+centroids = centroid_init(tf_idf)
+
+
+# # kmeans
+# random_int = [random.randint(0, D) for _ in range(kc)]
+# centroids = [tf_idf[p][1] for p in random_int]  # in the form of [{'shop': 17.19, 'and': 0.38, ...}), ...]
+
+# common
 change = True
 purity = 0
 
