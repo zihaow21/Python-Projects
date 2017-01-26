@@ -14,11 +14,13 @@ def get_headlines():
     sess.headers.update({'User-Agent': 'I am testing Alexa'})
     sess.post('https://www.reddit.com/api/login', data=user_pass_dict)  # pass the credentials
 
+    # api format
     url = 'https://reddit.com/r/worldnews/.json?limit=10'
     html = sess.get(url)
     data = json.loads(html.content.decode('utf-8'))
-    titles = [unidecode.unidecode(listing['data']['title']) for listing in data['data']['children']]
 
+    # data processing
+    titles = [unidecode.unidecode(listing['data']['title']) for listing in data['data']['children']]
     titles = '... '.join([i for i in titles])
 
     return titles
