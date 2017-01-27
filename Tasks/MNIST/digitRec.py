@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import time
 
 
+main_dir = "/home/zwan438/temp_folder/model files/"
 mnist = input_data.read_data_sets('MNIST_data/', one_hot=True)
 
 data_train = mnist.train.images
@@ -24,8 +25,8 @@ input_dim = shape[1]
 
 ### tradiional fully connected neural network
 
-model_dir_fnn = '/Users/ZW/Dropbox/current/temp/MNIST_fnn.ckpt'
-meta_dir_fnn = '/Users/ZW/Dropbox/current/temp/MNIST_fnn.ckpt.meta'
+model_dir_fnn = main_dir + 'MNIST_fnn.ckpt'
+meta_dir_fnn = main_dir + 'MNIST_fnn.ckpt.meta'
 
 start_time = time.time()
 
@@ -56,8 +57,8 @@ plt.title('cost of fully connected neural network')
 
 ### highway fully connected neural network
 
-model_dir_fnn_highway = '/Users/ZW/Dropbox/current/temp/MNIST_fnn_highway.ckpt'
-meta_dir_fnn_highway = '/Users/ZW/Dropbox/current/temp/MNIST_fnn_highway.ckpt.meta'
+model_dir_fnn_highway = main_dir + 'MNIST_fnn_highway.ckpt'
+meta_dir_fnn_highway = main_dir + 'MNIST_fnn_highway.ckpt.meta'
 
 start_time = time.time()
 
@@ -87,8 +88,8 @@ plt.title('cost of highway fully connected neural network')
 
 ### residual fully connected neural network
 
-model_dir_fnn_highway = '/Users/ZW/Dropbox/current/temp/MNIST_fnn_res.ckpt'
-meta_dir_fnn_highway = '/Users/ZW/Dropbox/current/temp/MNIST_fnn_res.ckpt.meta'
+model_dir_fnn_highway = main_dir + 'MNIST_fnn_res.ckpt'
+meta_dir_fnn_highway = main_dir + 'MNIST_fnn_res.ckpt.meta'
 
 start_time = time.time()
 
