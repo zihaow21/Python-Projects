@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 import time
 
 
-main_dir = "/home/zwan438/temp_folder/model files/"
+# main_dir = "/home/zwan438/temp_folder/model files/"
+main_dir = "/Users/ZW/Dropbox/current"
 mnist = input_data.read_data_sets('MNIST_data/', one_hot=True)
 
 data_train = mnist.train.images
