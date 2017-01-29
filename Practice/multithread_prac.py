@@ -1,4 +1,4 @@
-from multiprocessing import pool
+from multiprocessing import Pool
 import requests
 import random
 import bs4 as bs
@@ -20,3 +20,50 @@ def handle_local_links(url, link):
 
 
 def get_links(url):
+    try:
+        resp = requests.get(url)
+        soup = bs.BeautifulSoup(resp.text, 'lxml')
+        body = soup.body
+        links = [link.get('href') for link in body.find_all('a')]
+        links = [handle_local_links(url, link) for link in links]
+        links = [str(link.encode('ascii')) for link in links]
+
+        return links
+
+    except TypeError as e:
+        print(e)
+        print ('Got a TypeError, probably got a None that we tried to iterate over')
+
+        return []
+
+    except IndexError as e:
+        print(e)print(str(e))
+        print('We probably did not find any useful links, returning empty list')
+
+        return []
+
+    except AttributeError as e:
+        print(e)
+        print('Likely got None for links, so we are throwing this')
+
+        return []
+
+    except Exception as e:
+        pass
+
+        return []
+
+def main():
+    num_process = 10
+    p = Pool(processes=num_process)
+    parse_us = [random_starting_url() for _ in range(num_process)]
+
+    data = p.map(get_links, [link for link in parse_us])
+    data = [url for url_list in data for url in url_list]
+    p.close()
+
+    with open('url.txt', 'w') as f:
+        f.write(str(data))
+
+if __name__ == '__main__':
+    main()
