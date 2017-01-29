@@ -37,7 +37,7 @@ def get_links(url):
         return []
 
     except IndexError as e:
-        print(e)print(str(e))
+        print(e)
         print('We probably did not find any useful links, returning empty list')
 
         return []
