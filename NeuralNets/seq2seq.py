@@ -1,18 +1,3 @@
-# Copyright 2015 Conchylicultor. All Rights Reserved.
-# Modifications copyright (C) 2016 Carlos Segura
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# ==============================================================================
 import numpy as np
 import tensorflow as tf
 from Tasks.Chatbot_Practice.dataSerialization import Batch
@@ -51,18 +36,14 @@ class ProjectOp:
 class Model:
     """
     implementation of a seq2seq model
-    structure: Encoder/Decoder
-                2 LSTM layers
+    structure: Encoder/Decoder by LSTM layers
     """
     def __init__(self, args, dataSerialization):
         """
-        :param args: parameters of the model
         :param data: the data object
         """
-        print("Model creation...")
-
-        self.dataSerialization = dataSerialization
         self.args = args
+        self.dataSerialization = dataSerialization
         self.dtype = tf.float32
 
         # placeholders
@@ -78,6 +59,12 @@ class Model:
 
         # construct the graphs
         self.buildNetwork()
+
+        # train model
+        self.train()
+
+    def train(self):
+        
 
     def buildNetwork(self):
 
