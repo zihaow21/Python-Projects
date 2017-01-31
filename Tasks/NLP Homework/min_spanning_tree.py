@@ -63,7 +63,7 @@ with open("/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework2/finalli
     for line in ffr:
         retrieve_list.append(eval(line))
 
-threshold = 0.80
+threshold = 0.88
 c = 0
 classes = []
 retrieved = []
@@ -82,7 +82,7 @@ while retrieve_list:
                     classes[c].extend(ele1[0: 2])
                     retrieved.extend(ele1[0: 2])
                     retrieve_list.pop(i)
-        retrieve_temp = retrieved
+        retrieved_temp = retrieved
     classes[c] = set(classes[c])
     c += 1
 
