@@ -85,5 +85,8 @@ while retrieve_list:
         retrieve_temp = retrieved
     classes[c] = set(classes[c])
     c += 1
-    
-print classes
+
+with open("/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework2/classes.txt", "wb") as fc:
+#with open("/home/zwan438/temp_folder/HomeworkFiles/classes.txt", "wb") as fc:
+    for cs in classes:
+        fc.write("{}\n".format(cs))
