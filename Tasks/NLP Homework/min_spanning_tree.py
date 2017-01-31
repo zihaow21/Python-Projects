@@ -1,9 +1,6 @@
 from __future__ import division
-import graphviz as gz
-import networkx as nx
 import math
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 file = "/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework2/word_vectors.txt"
