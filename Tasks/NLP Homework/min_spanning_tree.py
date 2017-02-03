@@ -58,8 +58,8 @@ import random
 #     fout.write('}\n')
 #
 retrieve_list = []
-with open("/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework2/finallist.txt", "rb") as ffr:
-# with open("/home/zwan438/temp_folder/HomeworkFiles/finallist.txt", 'rb') as ffr:
+# with open("/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework2/finallist.txt", "rb") as ffr:
+with open("/home/zwan438/temp_folder/HomeworkFiles/finallist.txt", 'rb') as ffr:
     for line in ffr:
         retrieve_list.append(eval(line))
 
@@ -86,7 +86,7 @@ while retrieve_list:
     classes[c] = set(classes[c])
     c += 1
 
-with open("/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework2/classes.txt", "wb") as fc:
-#with open("/home/zwan438/temp_folder/HomeworkFiles/classes.txt", "wb") as fc:
+# with open("/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework2/classes.txt", "wb") as fc:
+with open("/home/zwan438/temp_folder/HomeworkFiles/classes.txt", "wb") as fc:
     for cs in classes:
         fc.write("{}\n".format(cs))
