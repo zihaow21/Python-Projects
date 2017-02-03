@@ -64,7 +64,9 @@ class Model:
         self.train()
 
     def train(self):
-        
+        # with tf.Session(
+        #     config=tf.ConfigProto(intra_op_parallelism_threads=NUM_THREADS, inter_op_parallelism_threads=NUM_THREADS,
+        #                           log_device_placement=False)) as session:
 
     def buildNetwork(self):
 

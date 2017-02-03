@@ -80,7 +80,6 @@ def generateSentence(processed_data):
                     break
         print sentence
 
-generateTestData(file_path, test_data)
 stats(file_path)
 generateSentence(processed_data)
 readData(file_path)
