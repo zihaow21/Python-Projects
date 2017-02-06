@@ -42,7 +42,7 @@ class DataSerialization(object):
         self.padToken = self.getWordId("<pad>")
         self.goToken = self.getWordId("<go>")
         self.eosToken = self.getWordId("<eos")
-        self.unknownToken = self.getWordxId("<unknown>")
+        self.unknownToken = self.getWordId("<unknown>")
 
         for conversation in tqdm(conversations, desc="Extracting conversations"):
             self.extractConversation(conversation)
