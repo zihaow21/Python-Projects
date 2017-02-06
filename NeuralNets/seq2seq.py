@@ -150,7 +150,7 @@ class Model:
                 feedDict[self.decoderWeights[i]] = batch.weights[i]
 
             ops = (self.optOp, self.lossFunc)
-        else:  # training
+        else:  # testing
             for i in range(self.args.maxLengthEnco):
                 feedDict[self.encoderInputs[i]] = batch.encoderSeqs[i]
             feedDict[self.decoderInputs[0]] = [self.dataSerialization.goToken]
