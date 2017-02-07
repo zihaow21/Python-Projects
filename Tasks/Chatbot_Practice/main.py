@@ -14,7 +14,6 @@ meta_dir = '/home/zwan438/temp_folder/chitchat.meta'
 
 cd = CornellData(movie_lines_filename, movie_conversations_filename)
 conversations = cd.getConversations()
-with
 
 du = DataUtils(conversations, 20, 20, 22, 100)  # DataUtils(conversations, maxLength, maxLengthEnco, maxLengthDeco, batchSize)
 du.createCorpus()
