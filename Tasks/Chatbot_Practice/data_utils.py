@@ -113,6 +113,10 @@ class DataUtils(object):
 
         return wordId
 
+    def getVocabSize(self):
+
+        return len(self.word2id)
+
     def getBatches(self):
         self.shuffle()
         batches = []

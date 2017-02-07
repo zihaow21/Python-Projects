@@ -1,4 +1,3 @@
-### The code is modified based on https://github.com/Conchylicultor/DeepQA
 import io
 
 
