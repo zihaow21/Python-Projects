@@ -1,4 +1,5 @@
 import tensorflow as tf
+from tqdm import tqdm
 
 
 # class ProjectOp(object):
@@ -28,7 +29,7 @@ class Seq2seq(object):
 
     def __init__(self, epochs, learning_rate, batch_size, source_vocab_size, target_vocab_size, maxLengthEnco,
                  maxLengthDeco, num_softmax_samples, embedding_size, hidden_size, num_layers, use_lstm, model_dir,
-                 meta_dir):
+                 meta_dir, num_threads):
         self.epochs = epochs
         self.learning_rate = learning_rate
         self.batch_size = batch_size
@@ -43,6 +44,8 @@ class Seq2seq(object):
         self.maxLengthDeco = maxLengthDeco
         self.model_dir = model_dir
         self.meta_dir = meta_dir
+
+        self.num_threads = num_threads
 
     def model(self, encoder_inputs, decoder_inputs, output_dropout):
         output_projection = None
@@ -85,8 +88,7 @@ class Seq2seq(object):
 
         return decoderOutputs, softmax_loss_function
 
-    def train(self, data_train_encoder_input, data_train_decoder_input, data_train_decoder_output,
-              data_test_encoder_input, data_test_decoder_intput, data_test_decoder_output):
+    def train(self, batches):
         with tf.name_scope('placeholder_encoder'):
             encoder_inputs = [tf.placeholder(tf.int32, [None, ], name='inputs') for _ in range(self.maxLengthEnco)]
 
@@ -102,4 +104,11 @@ class Seq2seq(object):
                                            softmax_loss_function=softmax_loss_function)
         optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss)
 
-        for
+        with tf.Session(config=tf.ConfigProto(intra_op_parallelism_threads=self.num_threads,
+                                              inter_op_parallelism_threads=self.num_threads,
+                                              log_device_placement=False)) as sess:
+
+            sess.run(tf.initialize_all_variables())
+            saver = tf.train.Saver()
+
+            for i in tqdm(range(self.epochs)):
