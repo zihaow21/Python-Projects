@@ -1,5 +1,4 @@
 import nltk
-from tqdm import tqdm
 import random
 import numpy as np
 
@@ -39,11 +38,11 @@ class DataUtils(object):
         self.eosToken = self.getWordId("<eos")
         self.unknownToken = self.getWordId("<unknown>")
 
-        for conversation in tqdm(self.conversations, desc='Extracing conversations'):
+        for conversation in self.conversations:
             self.extractConversation(conversation)
 
     def extractConversation(self, conversation):
-        for i in tqdm(range(len(conversation['lines']) - 1)):  # ignore the last line, no answer for it
+        for i in range(len(conversation['lines']) - 1):  # ignore the last line, no answer for it
             inputLine = conversation['lines'][i]
             targetLine = conversation['lines'][i+1]
 
