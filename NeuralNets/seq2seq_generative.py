@@ -1,5 +1,6 @@
 import tensorflow as tf
 from tqdm import tqdm
+from Tasks.Chatbot_Practice.data_utils import DataUtils
 
 
 # class ProjectOp(object):
@@ -112,3 +113,6 @@ class Seq2seq(object):
             saver = tf.train.Saver()
 
             for i in tqdm(range(self.epochs)):
+                print "-----Epoch {}/{} with learning rate {}".format(i, self.epochs, self.learning_rate)
+
+                batches
