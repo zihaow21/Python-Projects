@@ -1,5 +1,4 @@
 import nltk
-from tqdm import tqdm
 import random
 import numpy as np
 
@@ -39,11 +38,11 @@ class DataUtils(object):
         self.eosToken = self.getWordId("<eos")
         self.unknownToken = self.getWordId("<unknown>")
 
-        for conversation in tqdm(self.conversations, desc='Extracing conversations'):
+        for conversation in self.conversations:
             self.extractConversation(conversation)
 
     def extractConversation(self, conversation):
-        for i in tqdm(range(len(conversation['lines']) - 1)):  # ignore the last line, no answer for it
+        for i in range(len(conversation['lines']) - 1):  # ignore the last line, no answer for it
             inputLine = conversation['lines'][i]
             targetLine = conversation['lines'][i+1]
 
@@ -113,6 +112,10 @@ class DataUtils(object):
 
         return wordId
 
+    def getVocabSize(self):
+
+        return len(self.word2id)
+
     def getBatches(self):
         self.shuffle()
         batches = []
@@ -139,13 +142,14 @@ class DataUtils(object):
             batch.targetSeqs.append(batch.decoderSeqs[-1][1:])
 
             batch.encoderSeqs[i] = batch.encoderSeqs[i] + [self.padToken] * (self.maxLengthEnco - len(batch.encoderSeqs[i]))
-            batch.decoderSeqs[i] = batch.decoderSeqs[i] + [self.padToken] * (self.maxLength - len(batch.decoderSeqs[i]))
-            batch.targetSeqs[i] = batch.targetSeqs[i] + [self.padToken] * (self.maxLength - len(batch.targetSeqs[i]))
-            batch.weights.append([1.0] * len(batch.targetSeqs[i]) + [0.0] * (self.maxLength - len(batch.targetSeqs[i])))
+            batch.decoderSeqs[i] = batch.decoderSeqs[i] + [self.padToken] * (self.maxLengthDeco - len(batch.decoderSeqs[i]))
+            batch.targetSeqs[i] = batch.targetSeqs[i] + [self.padToken] * (self.maxLengthDeco - len(batch.targetSeqs[i]))
+            batch.weights.append([1.0] * len(batch.targetSeqs[i]) + [0.0] * (self.maxLengthDeco - len(batch.targetSeqs[i])))
 
         encoderSeqsT = []
         for i in range(self.maxLengthEnco):
             encoderSeqT = []
+            print batch.encoderSeqs
             for j in range(self.batchSize):
                 encoderSeqT.append(batch.encoderSeqs[j][i])
             encoderSeqsT.append(encoderSeqT)

@@ -1,6 +1,5 @@
 import tensorflow as tf
 from tqdm import tqdm
-from Tasks.Chatbot_Practice.data_utils import DataUtils
 
 
 # class ProjectOp(object):
@@ -89,7 +88,7 @@ class Seq2seq(object):
 
         return decoderOutputs, softmax_loss_function
 
-    def train(self, batches):
+    def train(self, batch, epoch):
         with tf.name_scope('placeholder_encoder'):
             encoder_inputs = [tf.placeholder(tf.int32, [None, ], name='inputs') for _ in range(self.maxLengthEnco)]
 
@@ -105,6 +104,17 @@ class Seq2seq(object):
                                            softmax_loss_function=softmax_loss_function)
         optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss)
 
+        feed_dict = {}
+        for i in range(self.maxLengthEnco):
+            feed_dict[encoder_inputs[i]] = batch.encoderSeqs[i]
+
+        for i in range(self.maxLengthDeco):
+            feed_dict[decoder_inputs[i]] = batch.decoderSeqs[i]
+            feed_dict[decoder_targets[i]] = batch.targetSeqs[i]
+            feed_dict[decoder_weights[i]] = batch.weights[i]
+
+        feed_dict[output_dropout] = 0.5
+
         with tf.Session(config=tf.ConfigProto(intra_op_parallelism_threads=self.num_threads,
                                               inter_op_parallelism_threads=self.num_threads,
                                               log_device_placement=False)) as sess:
@@ -112,7 +122,7 @@ class Seq2seq(object):
             sess.run(tf.initialize_all_variables())
             saver = tf.train.Saver()
 
-            for i in tqdm(range(self.epochs)):
-                print "-----Epoch {}/{} with learning rate {}".format(i, self.epochs, self.learning_rate)
+            sess.run(optimizer, feed_dict=feed_dict)
+            if epoch % 5 == 0:
+                saver.save(sess, self.model_dir)
 
-                batches
