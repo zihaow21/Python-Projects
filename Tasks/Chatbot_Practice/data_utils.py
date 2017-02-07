@@ -149,6 +149,7 @@ class DataUtils(object):
         encoderSeqsT = []
         for i in range(self.maxLengthEnco):
             encoderSeqT = []
+            print batch.encoderSeqs
             for j in range(self.batchSize):
                 encoderSeqT.append(batch.encoderSeqs[j][i])
             encoderSeqsT.append(encoderSeqT)
