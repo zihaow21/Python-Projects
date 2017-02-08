@@ -31,7 +31,7 @@ target_vocab_size = len(du.word2id)
 
 seq2seq = Seq2seq(epochs=10000, learning_rate=0.005, batch_size=100, source_vocab_size=source_vocab_size,
                   target_vocab_size=target_vocab_size, maxLengthEnco=20, maxLengthDeco=22, num_softmax_samples=512,
-                  embedding_size=100, hidden_size=512, num_layers=3, use_lstm=False, model_dir=model_dir,
+                  embedding_size=50, hidden_size=512, num_layers=3, use_lstm=False, model_dir=model_dir,
                   meta_dir=meta_dir, num_threads=50)
 
 epochs = 11
