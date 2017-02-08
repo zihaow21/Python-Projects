@@ -37,7 +37,7 @@ class DataUtils(object):
         # add standard tokens
         self.padToken = self.getWordId("<pad>")
         self.goToken = self.getWordId("<go>")
-        self.eosToken = self.getWordId("<eos")
+        self.eosToken = self.getWordId("<eos>")
         self.unknownToken = self.getWordId("<unknown>")
 
         for conversation in self.conversations:
@@ -184,7 +184,7 @@ class DataUtils(object):
                 'id2word': self.id2word,
                 'trainingSamples': self.trainingSamples
             }
-        pickle.dump(data, f)
+            pickle.dump(data, f)
 
     def loadData(self):
         with open(self.data_dir, 'rb') as f:

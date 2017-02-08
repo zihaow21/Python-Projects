@@ -4,10 +4,10 @@ from data_utils import DataUtils
 from NeuralNets.seq2seq_generative import Seq2seq
 
 
-movie_lines_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_lines.txt'
-# movie_lines_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_lines.txt'
-movie_conversations_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_conversations.txt'
-# movie_conversations_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_conversations.txt'
+# movie_lines_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_lines.txt'
+movie_lines_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_lines.txt'
+# movie_conversations_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_conversations.txt'
+movie_conversations_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_conversations.txt'
 
 model_dir = '/home/zwan438/temp_folder/chitchat.ckpt'
 # model_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.ckpt'
@@ -23,6 +23,9 @@ conversations = cd.getConversations()
 
 du = DataUtils(conversations, 20, 20, 22, 100, data_dir)  # DataUtils(conversations, maxLength, maxLengthEnco, maxLengthDeco, batchSize)
 du.createCorpus()
+du.saveData()
+
+du.loadData()
 source_vocab_size = len(du.word2id)
 target_vocab_size = len(du.word2id)
 
