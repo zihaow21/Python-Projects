@@ -89,15 +89,13 @@ class Seq2seq(object):
         loss = tf.nn.seq2seq.sequence_loss(outputs, decoder_targets, decoder_weights, self.target_vocab_size,
                                            softmax_loss_function=softmax_loss_func)
         optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss)
-        with tf.Session(config=tf.ConfigProto(intra_op_parallelism_threads=self.num_threads,
-                                                     inter_op_parallelism_threads=self.num_threads,
-                                                     log_device_placement=False)) as sess:
+        with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
             saver = tf.train.Saver()
 
             for i in tqdm(range(self.epochs)):
                 batches = self.data_object.getBatches()
-                for batch in batches:
+                for batch in tqdm(batches):
                     feed_dict = {}
                     for j in range(self.maxLengthEnco):
                         feed_dict[encoder_inputs[j]] = batch.encoderSeqs[j]
@@ -113,3 +111,30 @@ class Seq2seq(object):
                 if i % 5 == 0:
                     saver.save(sess, self.model_dir)
 
+    def generation(self, question):
+        batch = self.data_object.sent2enco(question)
+
+        with tf.name_scope('placeholder_encoder'):
+            encoder_inputs = [tf.placeholder(tf.int32, [None, ], name='inputs') for _ in range(self.maxLengthEnco)]
+        with tf.name_scope('placeholder_decoder'):
+            decoder_inputs = [tf.placeholder(tf.int32, [None, ], name='inputs') for _ in range(self.maxLengthDeco)]
+            decoder_targets = [tf.placeholder(tf.int32, [None, ], name='targets') for _ in range(self.maxLengthDeco)]
+            decoder_weights = [tf.placeholder(tf.float32, [None, ], name='weights') for _ in range(self.maxLengthDeco)]
+        with tf.name_scope('dropout'):
+            output_dropout = tf.placeholder('float')
+
+        outputs, _ = self.model(encoder_inputs, decoder_inputs, output_dropout)
+
+        with tf.Session() as sess:
+            saver = tf.train.Saver()
+            saver.restore(sess, self.model_dir)
+
+            feed_dict = {}
+            for i in range(self.maxLengthEnco):
+                feed_dict[encoder_inputs[i]] = batch.encoderSeqs[i]
+            feed_dict[decoder_inputs[0]] = [self.data_object.goToken]
+
+        answer_code = sess.run(outputs, feed_dict)
+        answer = self.data_object.deco2vec(answer_code)
+
+        return answer
