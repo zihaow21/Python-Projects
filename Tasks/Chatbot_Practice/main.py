@@ -37,7 +37,7 @@ seq2seq = Seq2seq(epochs=10000, learning_rate=0.005, batch_size=100, source_voca
 epochs = 11
 for epoch in tqdm(range(epochs)):
     batches = du.getBatches()
-    for batch in tqdm(batches):
+    for batch in batches:
         seq2seq.train(batch, epoch)
 
 
