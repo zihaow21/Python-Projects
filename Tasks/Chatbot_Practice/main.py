@@ -18,12 +18,12 @@ data_dir = '/home/zwan438/temp_folder/chitchat_data.txt'
 # data_dir = '/Users/ZW/Dropbox/Current/temp/chitchat_data.txt'
 
 
-cd = CornellData(movie_lines_filename, movie_conversations_filename)
-conversations = cd.getConversations()
-
+# cd = CornellData(movie_lines_filename, movie_conversations_filename)
+# conversations = cd.getConversations()
+conversations = None
 du = DataUtils(conversations, 20, 20, 22, 100, data_dir)  # DataUtils(conversations, maxLength, maxLengthEnco, maxLengthDeco, batchSize)
-du.createCorpus()
-du.saveData()
+# du.createCorpus()
+# du.saveData()
 
 du.loadData()
 source_vocab_size = len(du.word2id)
