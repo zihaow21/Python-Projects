@@ -18,7 +18,7 @@ model_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.ckpt'
 
 # meta_dir = '/home/zwan438/temp_folder/chitchat.meta'
 meta_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.meta'
-# model_dir = '/home/zihao/temp_folder/chitchat.meta'
+# meta_dir = '/home/zihao/temp_folder/chitchat.meta'
 
 # data_dir = '/home/zwan438/temp_folder/chitchat_data.txt'
 data_dir = '/Users/ZW/Dropbox/Current/temp/chitchat_data.txt'
