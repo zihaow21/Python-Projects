@@ -9,15 +9,19 @@ movie_lines_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_l
 movie_conversations_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_conversations.txt'
 # movie_conversations_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_conversations.txt'
 
-# model_dir = '/home/zwan438/temp_folder/chitchat.ckpt'
-model_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.ckpt'
-# meta_dir = '/home/zwan438/temp_folder/chitchat.meta'
-meta_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.meta'
+model_dir = '/home/zwan438/temp_folder/chitchat.ckpt'
+# model_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.ckpt'
+meta_dir = '/home/zwan438/temp_folder/chitchat.meta'
+# meta_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.meta'
+
+data_dir = '/home/zwan438/temp_folder/chitchat_data.txt'
+# data_dir = '/Users/ZW/Dropbox/Current/temp/chitchat_data.txt'
+
 
 cd = CornellData(movie_lines_filename, movie_conversations_filename)
 conversations = cd.getConversations()
 
-du = DataUtils(conversations, 20, 20, 22, 100)  # DataUtils(conversations, maxLength, maxLengthEnco, maxLengthDeco, batchSize)
+du = DataUtils(conversations, 20, 20, 22, 100, data_dir)  # DataUtils(conversations, maxLength, maxLengthEnco, maxLengthDeco, batchSize)
 du.createCorpus()
 source_vocab_size = len(du.word2id)
 target_vocab_size = len(du.word2id)

@@ -1,6 +1,7 @@
 import nltk
 import random
 import numpy as np
+import pickle
 
 
 class Batch:
@@ -11,7 +12,7 @@ class Batch:
         self.weights = []
 
 class DataUtils(object):
-    def __init__(self, conversations, maxLength, maxLengthEnco, maxLengthDeco, batchSize):
+    def __init__(self, conversations, maxLength, maxLengthEnco, maxLengthDeco, batchSize, data_dir):
         self.padToken = -1  # Padding
         self.goToken = -1  # Start of Sequence
         self.eosToken = -1  # End of Sequence
@@ -20,6 +21,7 @@ class DataUtils(object):
         self.maxLengthEnco = maxLengthEnco
         self.maxLengthDeco = maxLengthDeco
         self.batchSize = batchSize
+        self.data_dir = data_dir
 
         self.word2id = {}
         self.id2word = {}
@@ -175,7 +177,28 @@ class DataUtils(object):
 
         return batch
 
-    def vec2str(self, sequence):
+    def saveData(self):
+        with open(self.data_dir, 'wb') as f:
+            data = {
+                'word2id': self.word2id,
+                'id2word': self.id2word,
+                'trainingSamples': self.trainingSamples
+            }
+        pickle.dump(data, f)
+
+    def loadData(self):
+        with open(self.data_dir, 'rb') as f:
+            data = pickle.load(f)
+            self.word2id = data['word2id']
+            self.id2word = data['id2word']
+            self.trainingSamples = data['trainingSamples']
+
+            self.padToken = self.word2id["<pad>"]
+            self.goToken = self.word2id["<go>"]
+            self.eosToken = self.word2id["<eos>"]
+            self.unknownToken = self.word2id["<unknown>"]
+
+def vec2str(self, sequence):
         sentence = []
         for wordId in sequence:
             if wordId == self.eosToken:
