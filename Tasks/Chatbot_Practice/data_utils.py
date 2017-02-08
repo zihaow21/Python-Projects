@@ -198,7 +198,7 @@ class DataUtils(object):
             self.eosToken = self.word2id["<eos>"]
             self.unknownToken = self.word2id["<unknown>"]
 
-def vec2str(self, sequence):
+    def vec2str(self, sequence):
         sentence = []
         for wordId in sequence:
             if wordId == self.eosToken:
