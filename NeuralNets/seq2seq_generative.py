@@ -1,19 +1,6 @@
 import tensorflow as tf
 from tqdm import tqdm
 
-
-# class ProjectOp(object):
-#     def __init__(self, dim):
-#         with tf.name_scope('projection'):
-#             self.W = tf.Variable(tf.truncated_normal(dim, stddev=0.1), name='weights')
-#             self.b = tf.Variable(tf.zeros([dim[1]]), name='biases')
-#
-#     def projection(self, x):
-#         with tf.name_scope('projection'):
-#             target_complete = tf.matmul(x, self.W) + self.b
-#
-#         return target_complete
-
 class Seq2seq(object):
     """
         source_vocab_size: size of the source vocabulary.
@@ -29,7 +16,7 @@ class Seq2seq(object):
 
     def __init__(self, epochs, learning_rate, batch_size, source_vocab_size, target_vocab_size, maxLengthEnco,
                  maxLengthDeco, num_softmax_samples, embedding_size, hidden_size, num_layers, use_lstm, model_dir,
-                 meta_dir, num_threads):
+                 meta_dir, num_threads, data_object):
         self.epochs = epochs
         self.learning_rate = learning_rate
         self.batch_size = batch_size
@@ -44,8 +31,10 @@ class Seq2seq(object):
         self.maxLengthDeco = maxLengthDeco
         self.model_dir = model_dir
         self.meta_dir = meta_dir
-
+        self.data_object = data_object
         self.num_threads = num_threads
+
+
 
     def model(self, encoder_inputs, decoder_inputs, output_dropout):
         output_projection = None
@@ -53,9 +42,9 @@ class Seq2seq(object):
 
         if 0 < self.num_softmax_samples < self.target_vocab_size:
             with tf.name_scope('sampled_softmax'):
-                w = tf.get_variable('weights', [self.hidden_size, self.target_vocab_size], initializer=tf.truncated_normal_initializer(stddev=0.1))
+                w = tf.Variable(tf.truncated_normal([self.hidden_size, self.target_vocab_size]), name='weights')
                 w_t = tf.transpose(w)
-                b = tf.get_variable('weights', [self.target_vocab_size], initializer=tf.constant_initializer())
+                b = tf.Variable(tf.zeros([self.target_vocab_size]), name='biases')
 
             output_projection = (w, b)
 
@@ -85,7 +74,7 @@ class Seq2seq(object):
                                                                            feed_previous=False)
         return decoderOutputs, softmax_loss_function
 
-    def train(self, batch, epoch):
+    def train(self):
         with tf.name_scope('placeholder_encoder'):
             encoder_inputs = [tf.placeholder(tf.int32, [None, ], name='inputs') for _ in range(self.maxLengthEnco)]
 
@@ -100,26 +89,27 @@ class Seq2seq(object):
         loss = tf.nn.seq2seq.sequence_loss(outputs, decoder_targets, decoder_weights, self.target_vocab_size,
                                            softmax_loss_function=softmax_loss_func)
         optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss)
-
-        feed_dict = {}
-        for i in range(self.maxLengthEnco):
-            feed_dict[encoder_inputs[i]] = batch.encoderSeqs[i]
-
-        for i in range(self.maxLengthDeco):
-            feed_dict[decoder_inputs[i]] = batch.decoderSeqs[i]
-            feed_dict[decoder_targets[i]] = batch.targetSeqs[i]
-            feed_dict[decoder_weights[i]] = batch.weights[i]
-
-        feed_dict[output_dropout] = 0.5
-
         with tf.Session(config=tf.ConfigProto(intra_op_parallelism_threads=self.num_threads,
-                                              inter_op_parallelism_threads=self.num_threads,
-                                              log_device_placement=False)) as sess:
-
-            sess.run(tf.global_variables_initializer())
+                                                     inter_op_parallelism_threads=self.num_threads,
+                                                     log_device_placement=False)) as sess:
+            sess.run(tf.initialize_all_variables())
             saver = tf.train.Saver()
 
-            sess.run(optimizer, feed_dict=feed_dict)
-            if epoch % 5 == 0:
-                saver.save(sess, self.model_dir)
+            for i in tqdm(range(self.epochs)):
+                batches = self.data_object.getBatches()
+                for batch in batches:
+                    feed_dict = {}
+                    for j in range(self.maxLengthEnco):
+                        feed_dict[encoder_inputs[j]] = batch.encoderSeqs[j]
+
+                    for k in range(self.maxLengthDeco):
+                        feed_dict[decoder_inputs[k]] = batch.decoderSeqs[k]
+                        feed_dict[decoder_targets[k]] = batch.targetSeqs[k]
+                        feed_dict[decoder_weights[k]] = batch.weights[k]
+
+                        feed_dict[output_dropout] = 0.5
+
+                    sess.run(optimizer, feed_dict=feed_dict)
+                if i % 5 == 0:
+                    saver.save(sess, self.model_dir)
 
