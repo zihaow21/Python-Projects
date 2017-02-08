@@ -29,7 +29,7 @@ du.loadData()
 source_vocab_size = len(du.word2id)
 target_vocab_size = len(du.word2id)
 
-seq2seq = Seq2seq(epochs=100, learning_rate=0.005, batch_size=500, source_vocab_size=source_vocab_size,
+seq2seq = Seq2seq(epochs=30, learning_rate=0.005, batch_size=500, source_vocab_size=source_vocab_size,
                   target_vocab_size=target_vocab_size, maxLengthEnco=5, maxLengthDeco=7, num_softmax_samples=128,
                   embedding_size=25, hidden_size=128, num_layers=3, use_lstm=False, model_dir=model_dir,
                   meta_dir=meta_dir, num_threads=1, data_object=du)
@@ -37,7 +37,6 @@ seq2seq = Seq2seq(epochs=100, learning_rate=0.005, batch_size=500, source_vocab_
 seq2seq.train()
 question = "How are you?"
 answer_code = seq2seq.generation(question)
-answer_string = du.vec2str((answer_code))
+answer_string = du.vec2str(answer_code)
 print answer_string
-
 

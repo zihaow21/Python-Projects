@@ -124,11 +124,11 @@ class Seq2seq(object):
             output_dropout = tf.placeholder('float')
 
         outputs, _ = self.model(encoder_inputs, decoder_inputs, output_dropout)
+        new_saver = tf.train.import_meta_graph(self.meta_dir)
 
         with tf.Session() as sess:
-            saver = tf.train.Saver()
-            saver.restore(sess, self.model_dir)
-
+            sess.run(tf.initialize_all_variables())
+            new_saver.restore(sess, tf.train.latest_checkpoint(self.model_dir))
             feed_dict = {}
             for i in range(self.maxLengthEnco):
                 feed_dict[encoder_inputs[i]] = batch.encoderSeqs[i]
