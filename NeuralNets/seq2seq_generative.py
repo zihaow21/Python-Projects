@@ -118,8 +118,6 @@ class Seq2seq(object):
             encoder_inputs = [tf.placeholder(tf.int32, [None, ], name='inputs') for _ in range(self.maxLengthEnco)]
         with tf.name_scope('placeholder_decoder'):
             decoder_inputs = [tf.placeholder(tf.int32, [None, ], name='inputs') for _ in range(self.maxLengthDeco)]
-            decoder_targets = [tf.placeholder(tf.int32, [None, ], name='targets') for _ in range(self.maxLengthDeco)]
-            decoder_weights = [tf.placeholder(tf.float32, [None, ], name='weights') for _ in range(self.maxLengthDeco)]
         with tf.name_scope('dropout'):
             output_dropout = tf.placeholder('float')
 
