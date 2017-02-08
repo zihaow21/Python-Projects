@@ -52,8 +52,6 @@ class Seq2seq(object):
         softmax_loss_function = None
 
         if 0 < self.num_softmax_samples < self.target_vocab_size:
-            # outputProjection = ProjectOp([self.hidden_size, self.target_vocab_size])
-
             with tf.name_scope('sampled softmax'):
                 w = tf.Variable(tf.truncated_normal([self.hidden_size, self.target_vocab_size], stddev=0.1), name='weights')
                 w_t = tf.transpose(w)

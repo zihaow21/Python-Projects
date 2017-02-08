@@ -4,13 +4,15 @@ from data_utils import DataUtils
 from NeuralNets.seq2seq_generative import Seq2seq
 
 
-# movie_lines_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_lines.txt'
-movie_lines_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_lines.txt'
-# movie_conversations_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_conversations.txt'
-movie_conversations_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_conversations.txt'
+movie_lines_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_lines.txt'
+# movie_lines_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_lines.txt'
+movie_conversations_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_conversations.txt'
+# movie_conversations_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_conversations.txt'
 
-model_dir = '/home/zwan438/temp_folder/chitchat.ckpt'
-meta_dir = '/home/zwan438/temp_folder/chitchat.meta'
+# model_dir = '/home/zwan438/temp_folder/chitchat.ckpt'
+model_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.ckpt'
+# meta_dir = '/home/zwan438/temp_folder/chitchat.meta'
+meta_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.meta'
 
 cd = CornellData(movie_lines_filename, movie_conversations_filename)
 conversations = cd.getConversations()
@@ -27,7 +29,8 @@ seq2seq = Seq2seq(epochs=10000, learning_rate=0.005, batch_size=100, source_voca
 
 epochs = 11
 for epoch in tqdm(range(epochs)):
-    batch = du.getBatches()
-    seq2seq.train(batch, epoch)
+    batches = du.getBatches()
+    for batch in tqdm(batches):
+        seq2seq.train(batch, epoch)
 
 
