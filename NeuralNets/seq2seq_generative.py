@@ -36,7 +36,7 @@ class Seq2seq(object):
 
 
 
-    def model(self, encoder_inputs, decoder_inputs, output_dropout):
+    def model(self, encoder_inputs, decoder_inputs, output_dropout, test=False):
         output_projection = None
         softmax_loss_function = None
 
@@ -72,6 +72,12 @@ class Seq2seq(object):
                                                                            embedding_size=self.embedding_size,
                                                                            output_projection=output_projection,
                                                                            feed_previous=False)
+        if test:
+            if not output_projection:
+                decoderOutputs = decoderOutputs
+            else:
+                decoderOutputs = [tf.matmul(output, output_projection[0]) + output_projection[1] for output in decoderOutputs]
+                
         return decoderOutputs, softmax_loss_function
 
     def train(self):
@@ -121,18 +127,19 @@ class Seq2seq(object):
         with tf.name_scope('dropout'):
             output_dropout = tf.placeholder('float')
 
-        outputs, _ = self.model(encoder_inputs, decoder_inputs, output_dropout)
-        new_saver = tf.train.import_meta_graph(self.meta_dir)
+        outputs, _ = self.model(encoder_inputs, decoder_inputs, output_dropout, test=True)
+        new_saver = tf.train.Saver()
 
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
-            new_saver.restore(sess, tf.train.latest_checkpoint(self.model_dir))
+            new_saver.restore(sess, self.model_dir)
             feed_dict = {}
             for i in range(self.maxLengthEnco):
                 feed_dict[encoder_inputs[i]] = batch.encoderSeqs[i]
             feed_dict[decoder_inputs[0]] = [self.data_object.goToken]
+            feed_dict[output_dropout] = 1.0
 
-        answer_code = sess.run(outputs, feed_dict)
+            answer_code = sess.run(outputs, feed_dict)
         answer = self.data_object.deco2vec(answer_code)
 
         return answer
