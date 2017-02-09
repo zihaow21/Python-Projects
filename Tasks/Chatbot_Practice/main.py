@@ -41,7 +41,7 @@ seq2seq = Seq2seq(epochs=5, learning_rate=0.005, batch_size=1000, source_vocab_s
                   meta_dir=meta_dir, num_threads=1, data_object=du)
 
 # seq2seq.train()
-question = "How are you?"
+question = "who are you"
 answer_code = seq2seq.generation(question)
 answer_string = du.vec2str(answer_code)
 print answer_string

@@ -71,13 +71,13 @@ class Seq2seq(object):
                                                                            num_decoder_symbols=self.target_vocab_size,
                                                                            embedding_size=self.embedding_size,
                                                                            output_projection=output_projection,
-                                                                           feed_previous=False)
+                                                                           feed_previous=test)
         if test:
             if not output_projection:
                 decoderOutputs = decoderOutputs
             else:
                 decoderOutputs = [tf.matmul(output, output_projection[0]) + output_projection[1] for output in decoderOutputs]
-                
+
         return decoderOutputs, softmax_loss_function
 
     def train(self):
