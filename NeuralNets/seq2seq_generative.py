@@ -115,7 +115,7 @@ class Seq2seq(object):
                 feed_dict[self.decoder_targets[k]] = batch.targetSeqs[k]
                 feed_dict[self.decoder_weights[k]] = batch.weights[k]
 
-                feed_dict[self.output_dropout] = 0.5
+            feed_dict[self.output_dropout] = 0.5
 
         else:
             for i in range(self.maxLengthEnco):
