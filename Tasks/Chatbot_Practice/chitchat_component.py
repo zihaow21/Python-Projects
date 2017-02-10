@@ -7,24 +7,24 @@ from NeuralNets.seq2seq_generative import Seq2seq
 class ChitChat(object):
     def __init__(self):
 
-        # self.movie_lines_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_lines.txt'
-        self.movie_lines_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_lines.txt'
+        self.movie_lines_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_lines.txt'
+        # self.movie_lines_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_lines.txt'
         # movie_lines_filename = '/home/zihao/temp_folder/movie_lines.txt'
 
-        #self.movie_conversations_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_conversations.txt'
-        self.movie_conversations_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_conversations.txt'
+        self.movie_conversations_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_conversations.txt'
+        # self.movie_conversations_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_conversations.txt'
         # self.movie_conversations_filename = '/home/zihao/temp_folder/movie_conversations.txt'
 
-        self.model_dir = '/home/zwan438/temp_folder/chitchat.ckpt'
-        # self.model_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.ckpt'
+        # self.model_dir = '/home/zwan438/temp_folder/chitchat.ckpt'
+        self.model_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.ckpt'
         # self.model_dir = '/home/zihao/temp_folder/chitchat.ckpt'
 
-        self.meta_dir = '/home/zwan438/temp_folder/chitchat.meta'
-        # self.meta_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.ckpt.meta'
+        # self.meta_dir = '/home/zwan438/temp_folder/chitchat.meta'
+        self.meta_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.ckpt.meta'
         # self.meta_dir = '/home/zihao/temp_folder/chitchat.meta'
 
-        self.data_dir = '/home/zwan438/temp_folder/chitchat_data.txt'
-        # self.data_dir = '/Users/ZW/Dropbox/Current/temp/chitchat_data.txt'
+        # self.data_dir = '/home/zwan438/temp_folder/chitchat_data.txt'
+        self.data_dir = '/Users/ZW/Dropbox/Current/temp/chitchat_data.txt'
         # self.data_dir = '/home/zihao/temp_folder/chitchat_data.txt'
 
         self.conversations = None
@@ -50,10 +50,11 @@ class ChitChat(object):
         self.seq2seq.train()
 
     def mainTest(self, question):
-        answer_code = self.seq2seq.generation(question)
-        answer_string = self.du.vec2str(answer_code)
+        #answer_code = self.seq2seq.generation(question)
+        #answer_string = self.du.vec2str(answer_code)
 
-        return answer_string
+        #return answer_string
+        return "hi"
 
 
 

@@ -1,9 +1,6 @@
 from flask import Flask
 from flask_ask import Ask, statement, question
 from Tasks.Chatbot_Practice.chitchat_component import ChitChat
-import json
-import requests
-import unidecode
 
 
 app = Flask(__name__)
@@ -23,7 +20,7 @@ def start_skill():
     welcome_message = "Hello there, what's up?"
     return question(welcome_message)
 
-@ask.intent("ContinueIntent")
+@ask.intent("ChatIntent")
 def conversation(query):
     response = chitchat(query)
     return statement(response)

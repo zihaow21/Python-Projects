@@ -34,9 +34,26 @@ class Seq2seq(object):
         self.data_object = data_object
         self.num_threads = num_threads
 
+        self.encoder_intputs = None
+        self.decoder_inputs = None
+        self.decoder_targets = None
+        self.decoder_weights = None
+        self.output_dropout = None
 
+        self.loss_func = None
+        self.optimizer = None
 
-    def model(self, encoder_inputs, decoder_inputs, output_dropout, test=False):
+    def model(self, test=False):
+        with tf.name_scope('placeholder_encoder'):
+            self.encoder_inputs = [tf.placeholder(tf.int32, [None, ], name='inputs') for _ in range(self.maxLengthEnco)]
+
+        with tf.name_scope('placeholder_decoder'):
+            self.decoder_inputs = [tf.placeholder(tf.int32, [None, ], name='inputs') for _ in range(self.maxLengthDeco)]
+            self.decoder_targets = [tf.placeholder(tf.int32, [None, ], name='targets') for _ in range(self.maxLengthDeco)]
+            self.decoder_weights = [tf.placeholder(tf.float32, [None, ], name='weights') for _ in range(self.maxLengthDeco)]
+        with tf.name_scovpe('dropout'):
+            self.output_dropout = tf.placeholder('float')
+
         output_projection = None
         softmax_loss_function = None
 
@@ -65,8 +82,8 @@ class Seq2seq(object):
         else:
             cell = rnnCellDropout
 
-        decoderOutputs, states = tf.nn.seq2seq.embedding_attention_seq2seq(encoder_inputs =encoder_inputs,
-                                                                           decoder_inputs=decoder_inputs, cell=cell,
+        decoderOutputs, states = tf.nn.seq2seq.embedding_attention_seq2seq(encoder_inputs =self.encoder_inputs,
+                                                                           decoder_inputs=self.decoder_inputs, cell=cell,
                                                                            num_encoder_symbols=self.source_vocab_size,
                                                                            num_decoder_symbols=self.target_vocab_size,
                                                                            embedding_size=self.embedding_size,
@@ -78,23 +95,45 @@ class Seq2seq(object):
             else:
                 decoderOutputs = [tf.matmul(output, output_projection[0]) + output_projection[1] for output in decoderOutputs]
 
-        return decoderOutputs, softmax_loss_function
+            return decoderOutputs
+        else:
+            self.loss_func = tf.nn.seq2seq.sequence_loss(decoderOutputs, self.decoder_targets, self.decoder_weights,
+                                               self.target_vocab_size, softmax_loss_function=softmax_loss_function)
+            self.optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(self.loss_func)
+
+            return decoderOutputs, softmax_loss_function
+
+    def step(self, batch, test=False):
+        feed_dict = {}
+
+        if not test:
+            for j in range(self.maxLengthEnco):
+                feed_dict[self.encoder_inputs[j]] = batch.encoderSeqs[j]
+
+            for k in range(self.maxLengthDeco):
+                feed_dict[self.decoder_inputs[k]] = batch.decoderSeqs[k]
+                feed_dict[self.decoder_targets[k]] = batch.targetSeqs[k]
+                feed_dict[self.decoder_weights[k]] = batch.weights[k]
+
+                feed_dict[self.output_dropout] = 0.5
+
+            return self.loss_func
+
+        else:
+            for i in range(self.maxLengthEnco):
+                feed_dict[self.encoder_inputs[i]] = batch.encoderSeqs[i]
+            feed_dict[self.decoder_inputs[0]] = [self.data_object.goToken]
+            feed_dict[self.output_dropout] = 1.0
+
+            op = (feed_dict,)
+
+        return op
+
 
     def train(self):
-        with tf.name_scope('placeholder_encoder'):
-            encoder_inputs = [tf.placeholder(tf.int32, [None, ], name='inputs') for _ in range(self.maxLengthEnco)]
 
-        with tf.name_scope('placeholder_decoder'):
-            decoder_inputs = [tf.placeholder(tf.int32, [None, ], name='inputs') for _ in range(self.maxLengthDeco)]
-            decoder_targets = [tf.placeholder(tf.int32, [None, ], name='targets') for _ in range(self.maxLengthDeco)]
-            decoder_weights = [tf.placeholder(tf.float32, [None, ], name='weights') for _ in range(self.maxLengthDeco)]
-        with tf.name_scope('dropout'):
-            output_dropout = tf.placeholder('float')
+        outputs, softmax_loss_func = self.model()
 
-        outputs, softmax_loss_func = self.model(encoder_inputs, decoder_inputs, output_dropout)
-        loss = tf.nn.seq2seq.sequence_loss(outputs, decoder_targets, decoder_weights, self.target_vocab_size,
-                                           softmax_loss_function=softmax_loss_func)
-        optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(loss)
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
             saver = tf.train.Saver()
