@@ -42,7 +42,7 @@ seq2seq = Seq2seq(epochs=1, learning_rate=0.0005, batch_size=1000, source_vocab_
 
 # seq2seq.train()
 # with open("/Users/ZW/Downloads/cornell movie-dialogs corpus/samples.txt") as f:
-# with open("/Users/ZW/Downloads/cornell movie-dialogs corpus/samples.txt") as f:
+# with open("/home/zihao/temp_folder/samples.txt") as f:
 with open("/home/zwan438/temp_folder/samples.txt") as f:
     questions = f.readlines()
     answers = seq2seq.generation(questions)
