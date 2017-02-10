@@ -206,7 +206,7 @@ class DataUtils(object):
             elif wordId != self.padToken and wordId != self.goToken:
                 sentence.append(self.id2word[wordId])
 
-        return ''.join(sentence)
+        return ' '.join(sentence)
 
     def deco2vec(self, decoderOutputs):
         """

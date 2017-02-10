@@ -34,7 +34,7 @@ class Seq2seq(object):
         self.data_object = data_object
         self.num_threads = num_threads
 
-        self.encoder_intputs = None
+        self.encoder_inputs = None
         self.decoder_inputs = None
         self.decoder_targets = None
         self.decoder_weights = None
@@ -42,6 +42,9 @@ class Seq2seq(object):
 
         self.loss_func = None
         self.optimizer = None
+        self.saver = None
+
+        self.decoder_outputs = None
 
     def model(self, test=False):
         with tf.name_scope('placeholder_encoder'):
@@ -51,6 +54,7 @@ class Seq2seq(object):
             self.decoder_inputs = [tf.placeholder(tf.int32, [None, ], name='inputs') for _ in range(self.maxLengthDeco)]
             self.decoder_targets = [tf.placeholder(tf.int32, [None, ], name='targets') for _ in range(self.maxLengthDeco)]
             self.decoder_weights = [tf.placeholder(tf.float32, [None, ], name='weights') for _ in range(self.maxLengthDeco)]
+
         with tf.name_scope('dropout'):
             self.output_dropout = tf.placeholder('float')
 
@@ -82,6 +86,8 @@ class Seq2seq(object):
         else:
             cell = rnnCellDropout
 
+        self.saver = tf.train.Saver()
+
         decoderOutputs, states = tf.nn.seq2seq.embedding_attention_seq2seq(encoder_inputs =self.encoder_inputs,
                                                                            decoder_inputs=self.decoder_inputs, cell=cell,
                                                                            num_encoder_symbols=self.source_vocab_size,
@@ -91,17 +97,14 @@ class Seq2seq(object):
                                                                            feed_previous=test)
         if test:
             if not output_projection:
-                decoderOutputs = decoderOutputs
+                self.decoder_outputs = decoderOutputs
             else:
-                decoderOutputs = [tf.matmul(output, output_projection[0]) + output_projection[1] for output in decoderOutputs]
+                self.decoder_outputs = [tf.matmul(output, output_projection[0]) + output_projection[1] for output in decoderOutputs]
 
-            return decoderOutputs
         else:
             self.loss_func = tf.nn.seq2seq.sequence_loss(decoderOutputs, self.decoder_targets, self.decoder_weights,
                                                self.target_vocab_size, softmax_loss_function=softmax_loss_function)
             self.optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(self.loss_func)
-
-        return decoderOutputs
 
     def step(self, batch, test=False):
         feed_dict = {}
@@ -123,29 +126,35 @@ class Seq2seq(object):
             feed_dict[self.decoder_inputs[0]] = [self.data_object.goToken]
             feed_dict[self.output_dropout] = 1.0
 
+        return feed_dict
+
     def train(self):
+        self.model()
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
-            saver = tf.train.Saver()
 
             for i in tqdm(range(self.epochs)):
                 batches = self.data_object.getBatches()
                 for batch in tqdm(batches):
-                    self.step(batch)
-                    sess.run(self.optimizer)
+                    feed_dict = self.step(batch)
+                    sess.run(self.optimizer, feed_dict)
                 if i % 100 == 0:
-                    saver.save(sess, self.model_dir)
+                    self.saver.save(sess, self.model_dir)
 
-    def generation(self, question):
-        batch = self.data_object.sent2enco(question)
-        outputs, _ = self.model(test=True)
-        new_saver = tf.train.Saver()
+    def generation(self, questions):
+        self.model(test=True)
+        answers = []
 
         with tf.Session() as sess:
             sess.run(tf.initialize_all_variables())
-            new_saver.restore(sess, self.model_dir)
-            self.step(batch)
-            answer_code = sess.run(self.model(test=True))
-        answer = self.data_object.deco2vec(answer_code)
-
-        return answer
+            self.saver.restore(sess, self.model_dir)
+            for i, question in enumerate(questions):
+                batch = self.data_object.sent2enco(question)
+                if batch:
+                    feed_dict = self.step(batch)
+                    answer_code = sess.run(self.decoder_outputs, feed_dict)
+                    answer = self.data_object.vec2str(self.data_object.deco2vec(list(answer_code)))
+                    answers.append(answer)
+                else:
+                    continue
+        return answers
