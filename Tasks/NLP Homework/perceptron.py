@@ -11,6 +11,8 @@ f_trn = "/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework3/sst.trn.t
 f_dev = "/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework3/sst.dev.tsv"
 f_tst = "/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework3/sst.tst.tsv"
 
+pred_tst = "/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework3/hw3.out"
+
 model_dir_tfidf = "/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework3/perceptron_tfidf.pik"
 model_dir_onehot = "/Users/ZW/Dropbox/current/Courses/2016 NLP Homework/Homework3/perceptron_onehot.pik"
 
@@ -114,7 +116,7 @@ class MultiClassPerceptron(object):
         self.model_dir = model_dir
 
         random.shuffle(self.data_train)
-        self.weights = {cls: np.array([0.0 for _ in xrange(len(self.data_train[0][1]) + 1)]) for cls in self.classes}
+        self.weights = {cls: np.array([random.random() for _ in xrange(len(self.data_train[0][1]) + 1)]) for cls in self.classes}
 
     def train(self):
         for k in tqdm(xrange(self.epochs)):
@@ -180,10 +182,29 @@ class MultiClassPerceptron(object):
 
         print accuracy
 
+    def pred_test(self, data_tst):
+        prediction_set = []
+        for label, vec in data_tst:
+            data = np.array(vec + [1.0])
+
+            argmax, prediction = 0, self.classes[0]
+
+            for cls in self.classes:
+                current = np.dot(data, self.weights[cls])
+                if current >= argmax:
+                    argmax, prediction = current, cls
+            prediction_set.append(prediction)
+
+        with open(pred_tst, "wb") as f:
+            for p in prediction_set:
+                print >> f, p
+
+
 # mcp = MultiClassPerceptron([0, 1, 2, 3, 4], vec_trn, 15, model_dir_tfidf)
-mcp = MultiClassPerceptron([0, 1, 2, 3, 4], vector_trn, 33, model_dir_onehot)
-mcp.train()
-mcp.saveModel()
+mcp = MultiClassPerceptron([0, 1, 2, 3, 4], vector_trn, 50, model_dir_onehot)
+# mcp.train()
+# mcp.saveModel()
 mcp.loadModel()
 # mcp.pred(vec_dev)
-mcp.pred(vector_dev)
+# mcp.pred(vector_dev)
+mcp.pred_test(vector_tst)
