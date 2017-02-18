@@ -2,21 +2,9 @@ import tensorflow as tf
 from tqdm import tqdm
 
 class Seq2seq(object):
-    """
-        source_vocab_size: size of the source vocabulary.
-        target_vocab_size: size of the target vocabulary.
-        hidden_size: number of units in each layer of the model.
-        num_layers: number of layers in the model.
-        batch_size: the size of the batches used during training;
-        learning_rate: learning rate to start with.
-        learning_rate_decay_factor: decay learning rate by this much when needed.
-        use_lstm: if true, we use LSTM cells instead of GRU cells.
-        num_samples: number of samples for sampled softmax.
-    """
-
     def __init__(self, epochs, learning_rate, batch_size, source_vocab_size, target_vocab_size, maxLengthEnco,
                  maxLengthDeco, num_softmax_samples, embedding_size, hidden_size, num_layers, use_lstm, model_dir,
-                 meta_dir, num_threads, data_object):
+                 meta_dir, num_threads):
         self.epochs = epochs
         self.learning_rate = learning_rate
         self.batch_size = batch_size
@@ -31,7 +19,6 @@ class Seq2seq(object):
         self.maxLengthDeco = maxLengthDeco
         self.model_dir = model_dir
         self.meta_dir = meta_dir
-        self.data_object = data_object
         self.num_threads = num_threads
 
         self.encoder_inputs = None
@@ -45,6 +32,7 @@ class Seq2seq(object):
         self.saver = None
 
         self.decoder_outputs = None
+        self.model()
 
     def model(self, test=False):
         with tf.name_scope('placeholder_encoder'):
@@ -127,33 +115,3 @@ class Seq2seq(object):
             feed_dict[self.output_dropout] = 1.0
 
         return feed_dict
-
-    def train(self):
-        with tf.Session() as sess:
-            sess.run(tf.initialize_all_variables())
-
-            for i in tqdm(range(self.epochs)):
-                batches = self.data_object.getBatches()
-                for batch in tqdm(batches):
-                    feed_dict = self.step(batch)
-                    sess.run(self.optimizer, feed_dict)
-                if i % 100 == 0:
-                    self.saver.save(sess, self.model_dir)
-
-    def generation(self, questions):
-        self.model(test=True)
-        answers = []
-
-        with tf.Session() as sess:
-            sess.run(tf.initialize_all_variables())
-            self.saver.restore(sess, self.model_dir)
-            for i, question in enumerate(questions):
-                batch = self.data_object.sent2enco(question)
-                if batch:
-                    feed_dict = self.step(batch)
-                    answer_code = sess.run(self.decoder_outputs, feed_dict)
-                    answer = self.data_object.vec2str(self.data_object.deco2vec(list(answer_code)))
-                    answers.append(answer)
-                else:
-                    continue
-        return answers

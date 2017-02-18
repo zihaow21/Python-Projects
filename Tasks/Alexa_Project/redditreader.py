@@ -1,12 +1,10 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_ask import Ask, statement, question
 import json
 import requests
-import unidecode
 
 app = Flask(__name__) # a typical app definition in flask
 ask = Ask(app, "/")  #  ask app, part of the flask app; /: end point, where the ask app would be in the file system
-
 
 # def get_headlines():
 #     user_pass_dict = {'user': 'zihaow21', 'passwd': 'Wzh131313+', 'api_type': 'json'}  # user login info
@@ -26,6 +24,10 @@ ask = Ask(app, "/")  #  ask app, part of the flask app; /: end point, where the 
 #
 #     return titles
 
+# @app.route('/intent', methods=['POST'])
+# def share_headlines():
+#     utterance = request.form['request']
+#     return jsonify(utterance['intent'])
 
 @ask.launch
 def launched():
