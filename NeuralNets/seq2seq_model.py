@@ -2,21 +2,9 @@ import tensorflow as tf
 from tqdm import tqdm
 
 class Seq2seq(object):
-    """
-        source_vocab_size: size of the source vocabulary.
-        target_vocab_size: size of the target vocabulary.
-        hidden_size: number of units in each layer of the model.
-        num_layers: number of layers in the model.
-        batch_size: the size of the batches used during training;
-        learning_rate: learning rate to start with.
-        learning_rate_decay_factor: decay learning rate by this much when needed.
-        use_lstm: if true, we use LSTM cells instead of GRU cells.
-        num_samples: number of samples for sampled softmax.
-    """
-
     def __init__(self, epochs, learning_rate, batch_size, source_vocab_size, target_vocab_size, maxLengthEnco,
                  maxLengthDeco, num_softmax_samples, embedding_size, hidden_size, num_layers, use_lstm, model_dir,
-                 meta_dir, num_threads, data_object):
+                 meta_dir, num_threads):
         self.epochs = epochs
         self.learning_rate = learning_rate
         self.batch_size = batch_size
@@ -31,7 +19,6 @@ class Seq2seq(object):
         self.maxLengthDeco = maxLengthDeco
         self.model_dir = model_dir
         self.meta_dir = meta_dir
-        self.data_object = data_object
         self.num_threads = num_threads
 
         self.encoder_inputs = None
@@ -45,6 +32,7 @@ class Seq2seq(object):
         self.saver = None
 
         self.decoder_outputs = None
+        self.model()
 
     def model(self, test=False):
         with tf.name_scope('placeholder_encoder'):
@@ -76,19 +64,19 @@ class Seq2seq(object):
             softmax_loss_function = sampledSoftmax
 
         if self.use_lstm:
-            rnnCell = tf.contrib.rnn.LSTMCell(self.hidden_size, state_is_tuple=True)
+            rnnCell = tf.nn.rnn_cell.LSTMCell(self.hidden_size, state_is_tuple=True)
         else:
-            rnnCell = tf.contrib.rnn.GRUCell(self.hidden_size)
+            rnnCell = tf.nn.rnn_cell.GRUCell(self.hidden_size)
 
-        rnnCellDropout = tf.contrib.rnn.DropoutWrapper(rnnCell, input_keep_prob=1.0, output_keep_prob=self.output_dropout)
+        rnnCellDropout = tf.nn.rnn_cell.DropoutWrapper(rnnCell, input_keep_prob=1.0, output_keep_prob=self.output_dropout)
         if self.num_layers > 1:
-            cell = tf.contrib.rnn.MultiRNNCell([rnnCellDropout] * self.num_layers)
+            cell = tf.nn.rnn_cell.MultiRNNCell([rnnCellDropout] * self.num_layers)
         else:
             cell = rnnCellDropout
 
         self.saver = tf.train.Saver()
 
-        decoderOutputs, states = tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(encoder_inputs =self.encoder_inputs,
+        decoderOutputs, states = tf.nn.seq2seq.embedding_attention_seq2seq(encoder_inputs =self.encoder_inputs,
                                                                            decoder_inputs=self.decoder_inputs, cell=cell,
                                                                            num_encoder_symbols=self.source_vocab_size,
                                                                            num_decoder_symbols=self.target_vocab_size,
@@ -102,7 +90,7 @@ class Seq2seq(object):
                 self.decoder_outputs = [tf.matmul(output, output_projection[0]) + output_projection[1] for output in decoderOutputs]
 
         else:
-            self.loss_func = tf.contrib.seq2seq.sequence_loss(decoderOutputs, self.decoder_targets, self.decoder_weights,
+            self.loss_func = tf.nn.seq2seq.sequence_loss(decoderOutputs, self.decoder_targets, self.decoder_weights,
                                                self.target_vocab_size, softmax_loss_function=softmax_loss_function)
             self.optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(self.loss_func)
 
@@ -127,33 +115,3 @@ class Seq2seq(object):
             feed_dict[self.output_dropout] = 1.0
 
         return feed_dict
-
-    def train(self):
-        with tf.Session() as sess:
-            sess.run(tf.initialize_all_variables())
-
-            for i in tqdm(range(self.epochs)):
-                batches = self.data_object.getBatches()
-                for batch in tqdm(batches):
-                    feed_dict = self.step(batch)
-                    sess.run(self.optimizer, feed_dict)
-                if i % 100 == 0:
-                    self.saver.save(sess, self.model_dir)
-
-    def generation(self, questions):
-        self.model(test=True)
-        answers = []
-
-        with tf.Session() as sess:
-            sess.run(tf.initialize_all_variables())
-            self.saver.restore(sess, self.model_dir)
-            for i, question in enumerate(questions):
-                batch = self.data_object.sent2enco(question)
-                if batch:
-                    feed_dict = self.step(batch)
-                    answer_code = sess.run(self.decoder_outputs, feed_dict)
-                    answer = self.data_object.vec2str(self.data_object.deco2vec(list(answer_code)))
-                    answers.append(answer)
-                else:
-                    continue
-        return answers
