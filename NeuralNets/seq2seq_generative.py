@@ -76,19 +76,19 @@ class Seq2seq(object):
             softmax_loss_function = sampledSoftmax
 
         if self.use_lstm:
-            rnnCell = tf.nn.rnn_cell.LSTMCell(self.hidden_size, state_is_tuple=True)
+            rnnCell = tf.contrib.rnn.LSTMCell(self.hidden_size, state_is_tuple=True)
         else:
-            rnnCell = tf.nn.rnn_cell.GRUCell(self.hidden_size)
+            rnnCell = tf.contrib.rnn.GRUCell(self.hidden_size)
 
-        rnnCellDropout = tf.nn.rnn_cell.DropoutWrapper(rnnCell, input_keep_prob=1.0, output_keep_prob=self.output_dropout)
+        rnnCellDropout = tf.contrib.rnn.DropoutWrapper(rnnCell, input_keep_prob=1.0, output_keep_prob=self.output_dropout)
         if self.num_layers > 1:
-            cell = tf.nn.rnn_cell.MultiRNNCell([rnnCellDropout] * self.num_layers)
+            cell = tf.contrib.rnn.MultiRNNCell([rnnCellDropout] * self.num_layers)
         else:
             cell = rnnCellDropout
 
         self.saver = tf.train.Saver()
 
-        decoderOutputs, states = tf.nn.seq2seq.embedding_attention_seq2seq(encoder_inputs =self.encoder_inputs,
+        decoderOutputs, states = tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(encoder_inputs =self.encoder_inputs,
                                                                            decoder_inputs=self.decoder_inputs, cell=cell,
                                                                            num_encoder_symbols=self.source_vocab_size,
                                                                            num_decoder_symbols=self.target_vocab_size,
@@ -102,7 +102,7 @@ class Seq2seq(object):
                 self.decoder_outputs = [tf.matmul(output, output_projection[0]) + output_projection[1] for output in decoderOutputs]
 
         else:
-            self.loss_func = tf.nn.seq2seq.sequence_loss(decoderOutputs, self.decoder_targets, self.decoder_weights,
+            self.loss_func = tf.contrib.seq2seq.sequence_loss(decoderOutputs, self.decoder_targets, self.decoder_weights,
                                                self.target_vocab_size, softmax_loss_function=softmax_loss_function)
             self.optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(self.loss_func)
 
