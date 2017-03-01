@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tqdm import tqdm
 
+
 class Seq2seq(object):
     """
         source_vocab_size: size of the source vocabulary.
@@ -102,7 +103,7 @@ class Seq2seq(object):
                 self.decoder_outputs = [tf.matmul(output, output_projection[0]) + output_projection[1] for output in decoderOutputs]
 
         else:
-            self.loss_func = tf.contrib.seq2seq.sequence_loss(decoderOutputs, self.decoder_targets, self.decoder_weights,
+            self.loss_func = tf.contrib.legacy_seq2seq.sequence_loss(decoderOutputs, self.decoder_targets, self.decoder_weights,
                                                self.target_vocab_size, softmax_loss_function=softmax_loss_function)
             self.optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(self.loss_func)
 
