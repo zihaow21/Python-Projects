@@ -4,12 +4,12 @@ from Tasks.Chatbot_Practice.chitchat_component import ChitChat
 
 
 app = Flask(__name__)
-ask = Ask(app, "/chitchat")
+ask = Ask(app, "/emersonbot")
 
-def chitchat(query):
-    cc = ChitChat()
-    response = cc.mainTest(query)
-    return response
+# def chitchat(query):
+#     cc = ChitChat()
+#     response = cc.mainTest(query)
+#     return response
 
 @app.route('/')
 def homepage():
@@ -20,10 +20,10 @@ def start_skill():
     welcome_message = "Hello there, what's up?"
     return question(welcome_message)
 
-@ask.intent("ChatIntent")
-def conversation(query):
-    response = chitchat(query)
-    return statement(response)
+@ask.intent("UserInput")
+def conversation(sentence):
+    # response = chitchat(query)
+    return statement(sentence)
 
 @ask.intent("ExitIntent")
 def exit_intent():

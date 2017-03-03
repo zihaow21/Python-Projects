@@ -6,11 +6,11 @@ from NeuralNets.seq2seq_generative import Seq2seq
 from gensim.models import Word2Vec as wv
 
 
-movie_lines_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_lines.txt'
+movie_lines_filename = '/Users/ZW/Dropbox/data/cornell movie-dialogs corpus/movie_lines.txt'
 # movie_lines_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_lines.txt'
 # movie_lines_filename = '/home/zihao/temp_folder/movie_lines.txt'
 
-movie_conversations_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_conversations.txt'
+movie_conversations_filename = '/Users/ZW/Dropbox/data/cornell movie-dialogs corpus/movie_conversations.txt'
 # movie_conversations_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_conversations.txt'
 # movie_conversations_filename = '/home/zihao/temp_folder/movie_conversations.txt'
 
@@ -31,8 +31,8 @@ cd = CornellData(movie_lines_filename, movie_conversations_filename)
 conversations = cd.getConversations()
 # conversations = None
 
-MAX_CONTENT_LENGTH = 30
-MAX_UTTERANCE_LENGTH = 30
+MAX_CONTENT_LENGTH = 40
+MAX_UTTERANCE_LENGTH = 20
 EMBEDDING_SIZE = 300
 LSTM_CELL_SIZE = 256
 

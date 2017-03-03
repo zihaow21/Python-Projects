@@ -3,11 +3,11 @@ import nltk
 import pickle
 
 
-movie_lines_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_lines.txt'
+movie_lines_filename = '/Users/ZW/Dropbox/data/cornell movie-dialogs corpus/movie_lines.txt'
 # movie_lines_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_lines.txt'
 # movie_lines_filename = '/home/zihao/temp_folder/movie_lines.txt'
 
-movie_conversations_filename = '/Users/ZW/Downloads/cornell movie-dialogs corpus/movie_conversations.txt'
+movie_conversations_filename = '/Users/ZW/Dropbox/data/cornell movie-dialogs corpus/movie_conversations.txt'
 # movie_conversations_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_conversations.txt'
 # movie_conversations_filename = '/home/zihao/temp_folder/movie_conversations.txt'
 
@@ -53,6 +53,7 @@ class DataUtils(object):
         sentencesToken = nltk.sent_tokenize(line)
         for sent in sentencesToken:
             tokens = nltk.word_tokenize(sent)
+            tokens = [token.lower() for token in tokens]
             sentences.append(tokens)
 
         return sentences
