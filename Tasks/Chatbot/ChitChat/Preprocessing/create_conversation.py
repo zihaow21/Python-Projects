@@ -3,32 +3,31 @@ import nltk
 import pickle
 import numpy as np
 import gensim
+from tqdm import tqdm
 
 
-wiki_dir = "/Users/ZW/Dropbox/data/wikipedia.txt"
-conv_dir = "/Users/ZW/Dropbox/data/"
-word2vec_index_dir = '/Users/ZW/Dropbox/Current/temp/word2vec_dict.txt'
-index_vector_dir = '/Users/ZW/Dropbox/Current/temp/index_vector.txt'
+# word2vec_index_dir = '/Users/ZW/Dropbox/Current/temp/word2vec_dict.txt'
 
+word2vec_index_dir = '/home/zwan438/Dropbox/data/word2vec_dict.txt'
 
-movie_lines_filename = '/Users/ZW/Dropbox/data/cornell movie-dialogs corpus/movie_lines.txt'
-# movie_lines_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_lines.txt'
+# movie_lines_filename = '/Users/ZW/Dropbox/data/cornell movie-dialogs corpus/movie_lines.txt'
+movie_lines_filename = '/home/zwan438/Dropbox/data/cornell movie-dialogs corpus/movie_lines.txt'
 # movie_lines_filename = '/home/zihao/temp_folder/movie_lines.txt'
 
-movie_conversations_filename = '/Users/ZW/Dropbox/data/cornell movie-dialogs corpus/movie_conversations.txt'
-# movie_conversations_filename = '/home/zwan438/Downloads/Chitchat Data/cornell movie-dialogs corpus/movie_conversations.txt'
+# movie_conversations_filename = '/Users/ZW/Dropbox/data/cornell movie-dialogs corpus/movie_conversations.txt'
+movie_conversations_filename = '/home/zwan438/Dropbox/data/cornell movie-dialogs corpus/movie_conversations.txt'
 # movie_conversations_filename = '/home/zihao/temp_folder/movie_conversations.txt'
 
-data_conversation_dir = '/Users/ZW/Dropbox/Current/temp/chitchat_conversation_data.txt'
-# data_sentence_dir = '/home/zwan438/temp_folder/chitchat_conversation_data.txt'
-# data_sentence_dir = '/home/zihao/temp_folder/chitchat_conversation_data.txt'
+# data_conversation_dir = '/Users/ZW/Dropbox/Current/temp/chitchat_conversation_data.txt'
+data_conversation_dir = '/home/zwan438/Dropbox/data/chitchat_conversation_data.txt'
+# data_conversation_dir = '/home/zihao/temp_folder/chitchat_conversation_data.txt'
 
 cd = CornellData(movie_lines_filename, movie_conversations_filename)
 conversations = cd.getConversations()
 
 with open(word2vec_index_dir, 'r') as f:
     vector_model = pickle.load(f)
-
+print "loading data finished"
 vocab_len = len(vector_model)
 EMBEDDING_DIM = 50
 
@@ -61,12 +60,13 @@ class DataUtils(object):
         self.goToken = self.getWordId("<go>")
         self.eosToken = self.getWordId("<eos>")
         self.unknownToken = self.getWordId("<unknown>")
-
-        for conversation in self.conversations:
+        print "conversation length is {}".format(len(self.conversations))
+        for conversation in tqdm(self.conversations):
             self.createConversation(conversation)
 
     def createConversation(self, conversation):
-        for i in range(len(conversation['lines']) - 1):  # ignore the last line, no answer for it
+        length = len(conversation['lines']) - 1
+        for i in range(length):  # ignore the last line, no answer for it
             inputLine = conversation['lines'][i]
             targetLine = conversation['lines'][i+1]
 
@@ -109,7 +109,6 @@ class DataUtils(object):
 
             else:
                 break
-
         return words
 
     def getWordId(self, word):
@@ -131,12 +130,14 @@ class DataUtils(object):
         return wordId
 
     def saveData(self):
+        print "start saving data"
         data = {
             'word2id': self.word2id,
             'id2word': self.id2word,
             'trainingSamples': self.trainingSamples
         }
-        pickle.dump(data, f)
+        with open(self.data_conversation_dir, 'w') as f:
+            pickle.dump(data, f)
 
     # def loadData(self):
     #     with open(self.data_conversation_dir, 'r') as f:
@@ -147,4 +148,6 @@ class DataUtils(object):
 
 du = DataUtils(conversations, 40, vector_model, data_conversation_dir)
 du.createCorpus()
+print "corpus created"
+print "now saving data"
 du.saveData()

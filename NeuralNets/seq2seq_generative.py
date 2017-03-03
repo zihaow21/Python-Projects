@@ -10,7 +10,7 @@ class Seq2seq(object):
         num_layers: number of layers in the model.
         batch_size: the size of the batches used during training;
         learning_rate: learning rate to start with.
-        learning_rate_decay_factor: decay learning rate by this much when needed.
+        learning_rate_decay_factor: decay learning rat e by this much when needed.
         use_lstm: if true, we use LSTM cells instead of GRU cells.
         num_samples: number of samples for sampled softmax.
     """
