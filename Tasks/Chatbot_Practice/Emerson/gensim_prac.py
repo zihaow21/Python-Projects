@@ -2,9 +2,6 @@ import gensim
 import pickle
 
 
-# GOOGLENEWSCORPUS = "/Users/ZW/Downloads/GoogleNews-vectors-negative300.bin"
-# model = gensim.models.Word2Vec.load_word2vec_format(GOOGLENEWSCORPUS, binary=True)
-
 # WIKICORPUS = "/Users/ZW/Dropbox/data/wikipedia.txt"
 WIKICORPUS = "/home/zwan438/Dropbox/data/wikipedia.txt"
 sentences = gensim.models.word2vec.LineSentence(WIKICORPUS, limit=1000)
