@@ -1,14 +1,8 @@
 from cornell_data import CornellData
 import nltk
 import pickle
-import numpy as np
-import gensim
 from tqdm import tqdm
 
-
-# word2vec_index_dir = '/Users/ZW/Dropbox/Current/temp/word2vec_dict.txt'
-
-word2vec_index_dir = '/home/zwan438/Dropbox/data/word2vec_dict.txt'
 
 # movie_lines_filename = '/Users/ZW/Dropbox/data/cornell movie-dialogs corpus/movie_lines.txt'
 movie_lines_filename = '/home/zwan438/Dropbox/data/cornell movie-dialogs corpus/movie_lines.txt'
@@ -25,27 +19,14 @@ data_conversation_dir = '/home/zwan438/Dropbox/data/chitchat_conversation_data.t
 cd = CornellData(movie_lines_filename, movie_conversations_filename)
 conversations = cd.getConversations()
 
-with open(word2vec_index_dir, 'r') as f:
-    vector_model = pickle.load(f)
-print "loading data finished"
-vocab_len = len(vector_model)
-EMBEDDING_DIM = 50
-
-vector_model["<go>"] = (np.random.uniform(-0.25, 0.25, EMBEDDING_DIM), vocab_len + 1)
-vector_model["<eos>"] = (np.random.uniform(-0.25, 0.25, EMBEDDING_DIM), vocab_len + 2)
-vector_model["<unknown>"] = (np.random.uniform(-0.25, 0.25, EMBEDDING_DIM), vocab_len)
-vector_model["<pad>"] = (np.random.uniform(-0.25, 0.25, EMBEDDING_DIM), vocab_len + 3)
-
 class DataUtils(object):
-    def __init__(self, conversations, maxLength, vector_model, data_conversation_dir):
+    def __init__(self, conversations, maxLength, data_conversation_dir):
         self.padToken = -1  # Padding
         self.goToken = -1  # Start of Sequence
         self.eosToken = -1  # End of Sequence
         self.unknownToken = -1  # Word Dropped from Vocabulary
         self.maxLength = maxLength
         self.data_conversation_dir = data_conversation_dir
-
-        self.vector_model = vector_model
 
         self.word2id = {}
         self.id2word = {}
@@ -111,7 +92,7 @@ class DataUtils(object):
                 break
         return words
 
-    def getWordId(self, word):
+    def getWordId(self, word, create=True):
         """
         Get the id of the word (and add it to the dictionary if not  existing). If the word does not exist and create is
         set to False, the function will return the unknownToken value.
@@ -120,12 +101,15 @@ class DataUtils(object):
         :return: id of the word
         """
         word = word.lower()
-        if word in self.vector_model.keys():
-            wordId = self.vector_model[word][1]
-            self.word2id[word] = wordId
-            self.id2word[wordId] = word
-        else:
-            wordId = -1
+        wordId = self.word2id.get(word, -1)
+
+        if wordId == -1:
+            if create:
+                wordId = len(self.word2id)
+                self.word2id[word] = wordId
+                self.id2word[wordId] = word
+            else:
+                wordId = self.unknownToken
 
         return wordId
 
@@ -139,14 +123,7 @@ class DataUtils(object):
         with open(self.data_conversation_dir, 'w') as f:
             pickle.dump(data, f)
 
-    # def loadData(self):
-    #     with open(self.data_conversation_dir, 'r') as f:
-    #         data = pickle.load(f)
-    #         self.word2id = data['word2id']
-    #         self.id2word = data['id2word']
-    #         self.trainingSamples = data['trainingSamples']
-
-du = DataUtils(conversations, 40, vector_model, data_conversation_dir)
+du = DataUtils(conversations, 20, data_conversation_dir)
 du.createCorpus()
 print "corpus created"
 print "now saving data"

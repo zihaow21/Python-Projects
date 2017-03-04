@@ -12,7 +12,7 @@ class Batch:
         self.weights = []
 
 class DataUtils(object):
-    def __init__(self, word2vec_index_dir, maxLength, maxLengthEnco, maxLengthDeco, batchSize, data_conversation_dir):
+    def __init__(self, maxLength, maxLengthEnco, maxLengthDeco, batchSize, data_conversation_dir):
         self.padToken = -1  # Padding
         self.goToken = -1  # Start of Sequence
         self.eosToken = -1  # End of Sequence
@@ -22,13 +22,15 @@ class DataUtils(object):
         self.maxLengthDeco = maxLengthDeco
         self.batchSize = batchSize
         self.data_conversation_dir = data_conversation_dir
-        self.word2vec_index_dir = word2vec_index_dir
 
         with open(data_conversation_dir, 'r') as f:
             data = pickle.load(f)
             self.trainingSamples = data['trainingSamples']
             self.word2id = data['word2id']
             self.id2word = data['id2word']
+
+        self.source_vocab_size = len(self.word2id)
+        self.target_vocab_size = len(self.word2id)
 
     def shuffle(self):
         random.shuffle(self.trainingSamples)

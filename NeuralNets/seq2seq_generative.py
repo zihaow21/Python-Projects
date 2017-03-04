@@ -17,16 +17,15 @@ class Seq2seq(object):
         num_samples: number of samples for sampled softmax.
     """
 
-    def __init__(self, epochs, learning_rate, batch_size, vocab_size, source_vocab_size, target_vocab_size, maxLengthEnco,
+    def __init__(self, epochs, learning_rate, batch_size, source_vocab_size, target_vocab_size, maxLengthEnco,
                  maxLengthDeco, num_softmax_samples, embedding_size, hidden_size, num_layers, use_lstm, model_dir,
-                 meta_dir, word2vec_dict_dir, num_threads, data_object):
+                 meta_dir, num_threads, data_object):
         self.epochs = epochs
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.num_softmax_samples = num_softmax_samples
         self.embedding_size = embedding_size
         self.hidden_size = hidden_size
-        self.vocab_size = vocab_size
         self.source_vocab_size = source_vocab_size
         self.target_vocab_size = target_vocab_size
         self.use_lstm = use_lstm
@@ -35,21 +34,8 @@ class Seq2seq(object):
         self.maxLengthDeco = maxLengthDeco
         self.model_dir = model_dir
         self.meta_dir = meta_dir
-        self.word2vec_dict_dir = word2vec_dict_dir
         self.data_object = data_object
         self.num_threads = num_threads
-
-        with open(self.word2vec_dict_dir, 'r') as f:
-            self.embedding_dict = pickle.load(f)
-
-        with open(self.word2vec_dict_dir, 'r') as f:
-            word2vec_dict = pickle.load(f)
-
-        self.embedding_init = np.random.uniform(-0.25, 0.25, (self.vocab_size, self.embedding_size)).astype("float32")
-        for word in word2vec_dict.keys():
-            word_idx = word2vec_dict[word][1]
-            self.embedding_init[word_idx, :] = word2vec_dict[word][0]
-        self.embedding_tensor = tf.convert_to_tensor(self.embeddings)
 
         self.encoder_inputs = None
         self.decoder_inputs = None
