@@ -50,7 +50,12 @@ class DataUtils(object):
         wordId = self.word2id.get(word, -1)
 
         if wordId == -1:
-            wordId = self.unknownToken
+            if create:
+                wordId = len(self.word2id)
+                self.word2id[word] = wordId
+                self.id2word[wordId] = word
+            else:
+                wordId = self.unknownToken
 
         return wordId
 

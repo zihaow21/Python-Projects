@@ -37,18 +37,18 @@ class Seq2seq(object):
         self.data_object = data_object
         self.num_threads = num_threads
 
-        self.encoder_inputs = None
-        self.decoder_inputs = None
-        self.decoder_targets = None
-        self.decoder_weights = None
+        self.encoder_inputs = []
+        self.decoder_inputs = []
+        self.decoder_targets = []
+        self.decoder_weights = []
         self.output_dropout = None
-        self.embeddings = None
 
         self.loss_func = None
         self.optimizer = None
         self.saver = None
 
         self.decoder_outputs = None
+        self.model()
 
     def model(self, test=False):
         with tf.name_scope('placeholder_encoder'):
@@ -75,7 +75,10 @@ class Seq2seq(object):
 
             def sampledSoftmax(inputs, labels):
                 labels = tf.reshape(labels, [-1, 1])
-                return tf.nn.sampled_softmax_loss(w_t, b, inputs, labels, self.num_softmax_samples, self.target_vocab_size)
+                local_w_t = tf.cast(w_t, tf.float32)
+                local_b = tf.cast(b, tf.float32)
+                local_inputs = tf.cast(inputs, tf.float32)
+                return tf.cast(tf.nn.sampled_softmax_loss(weights=local_w_t, biases=local_b, inputs=local_inputs, labels=labels, num_sampled=self.num_softmax_samples, num_classes=self.target_vocab_size))
 
             softmax_loss_function = sampledSoftmax
 
@@ -92,7 +95,7 @@ class Seq2seq(object):
 
         self.saver = tf.train.Saver()
 
-        decoderOutputs, states = tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(encoder_inputs =self.encoder_inputs,
+        decoderOutputs, states = tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(encoder_inputs=self.encoder_inputs,
                                                                            decoder_inputs=self.decoder_inputs, cell=cell,
                                                                            num_encoder_symbols=self.source_vocab_size,
                                                                            num_decoder_symbols=self.target_vocab_size,
@@ -134,7 +137,7 @@ class Seq2seq(object):
 
     def train(self):
         with tf.Session() as sess:
-            sess.run(tf.initialize_all_variables())
+            sess.run(tf.global_variables_initializer())
 
             for i in tqdm(range(self.epochs)):
                 batches = self.data_object.getBatches()

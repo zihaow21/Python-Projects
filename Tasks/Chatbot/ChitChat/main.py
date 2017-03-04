@@ -1,19 +1,18 @@
 from data_utils import DataUtils
 from NeuralNets.seq2seq_generative import Seq2seq
-import pickle
 
 
-# model_dir = '/home/zwan438/temp_folder/chitchat.ckpt'
+model_dir = '/home/zwan438/temp_folder/chitchat.ckpt'
 # model_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.ckpt'
-model_dir = '/home/zihao/temp_folder/chitchat.ckpt'
+# model_dir = '/home/zihao/temp_folder/chitchat.ckpt'
 
-# meta_dir = '/home/zwan438/temp_folder/chitchat.ckpt.meta'
+meta_dir = '/home/zwan438/temp_folder/chitchat.ckpt.meta'
 # meta_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.ckpt.meta'
-meta_dir = '/home/zihao/temp_folder/chitchat.ckpt.meta'
+# meta_dir = '/home/zihao/temp_folder/chitchat.ckpt.meta'
 
-# data_conversation_dir = "/home/zwan438/Dropbox/data/chitchat_conversation_data.txt"
+data_conversation_dir = "/home/zwan438/Dropbox/data/chitchat_conversation_data.txt"
 # data_conversation_dir = "/Users/ZW/Dropbox/data/chitchat_conversation_data.txt"
-data_conversation_dir = "/home/zihao/temp_folder/chit_chat_conversation.txt"
+# data_conversation_dir = "/home/zihao/temp_folder/chit_chat_conversation.txt"
 
 maxLength = 20
 maxLengthEnco = 20
@@ -29,5 +28,6 @@ seq2seq = Seq2seq(epochs=1, learning_rate=0.0005, batch_size=batchSize, source_v
                   meta_dir=meta_dir, num_threads=10, data_object=du)
 
 seq2seq.train()
+
 
 
