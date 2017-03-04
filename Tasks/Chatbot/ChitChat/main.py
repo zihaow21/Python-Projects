@@ -4,16 +4,16 @@ import pickle
 
 
 # model_dir = '/home/zwan438/temp_folder/chitchat.ckpt'
-model_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.ckpt'
-# model_dir = '/home/zihao/temp_folder/chitchat.ckpt'
+# model_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.ckpt'
+model_dir = '/home/zihao/temp_folder/chitchat.ckpt'
 
 # meta_dir = '/home/zwan438/temp_folder/chitchat.ckpt.meta'
-meta_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.ckpt.meta'
-# meta_dir = '/home/zihao/temp_folder/chitchat.ckpt.meta'
+# meta_dir = '/Users/ZW/Dropbox/Current/temp/chitchat.ckpt.meta'
+meta_dir = '/home/zihao/temp_folder/chitchat.ckpt.meta'
 
-# data_conversation_dir = "/home/zwan438/Dropbox/data/word2vec_index.txt"
-data_conversation_dir = "/Users/ZW/Dropbox/data/chitchat_conversation_data.txt"
-# data_conversation_dir = "/home/zihao/Dropbox/data/word2vec_index.txt"
+# data_conversation_dir = "/home/zwan438/Dropbox/data/chitchat_conversation_data.txt"
+# data_conversation_dir = "/Users/ZW/Dropbox/data/chitchat_conversation_data.txt"
+data_conversation_dir = "/home/zihao/temp_folder/chit_chat_conversation.txt"
 
 maxLength = 20
 maxLengthEnco = 20
