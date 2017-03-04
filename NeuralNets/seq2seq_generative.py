@@ -49,12 +49,14 @@ class Seq2seq(object):
         for word in word2vec_dict.keys():
             word_idx = word2vec_dict[word][1]
             self.embedding_init[word_idx, :] = word2vec_dict[word][0]
+        self.embedding_tensor = tf.convert_to_tensor(self.embeddings)
 
         self.encoder_inputs = None
         self.decoder_inputs = None
         self.decoder_targets = None
         self.decoder_weights = None
         self.output_dropout = None
+        self.embeddings = None
 
         self.loss_func = None
         self.optimizer = None

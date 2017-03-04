@@ -30,3 +30,4 @@ with open(data_conversation_dir, 'r') as f:
     word2id = data['word2id']
     id2word = data['id2word']
 
+
