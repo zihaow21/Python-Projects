@@ -41,13 +41,13 @@ class Seq2seq(object):
         self.decoder_inputs = []
         self.decoder_targets = []
         self.decoder_weights = []
+        self.decoder_outputs = []
         self.output_dropout = None
 
         self.loss_func = None
         self.optimizer = None
         self.saver = None
 
-        self.decoder_outputs = None
         self.model()
 
     def model(self, test=False):
@@ -78,14 +78,11 @@ class Seq2seq(object):
                 local_w_t = tf.cast(w_t, tf.float32)
                 local_b = tf.cast(b, tf.float32)
                 local_inputs = tf.cast(inputs, tf.float32)
-                return tf.cast(tf.nn.sampled_softmax_loss(weights=local_w_t, biases=local_b, inputs=local_inputs, labels=labels, num_sampled=self.num_softmax_samples, num_classes=self.target_vocab_size))
+                return tf.cast(tf.nn.sampled_softmax_loss(weights=local_w_t, biases=local_b, labels=labels, inputs=local_inputs, num_sampled=self.num_softmax_samples, num_classes=self.target_vocab_size))
 
             softmax_loss_function = sampledSoftmax
 
-        if self.use_lstm:
-            rnnCell = tf.contrib.rnn.LSTMCell(self.hidden_size, state_is_tuple=True)
-        else:
-            rnnCell = tf.contrib.rnn.GRUCell(self.hidden_size)
+        rnnCell = tf.contrib.rnn.BasicLSTMCell(self.hidden_size)
 
         rnnCellDropout = tf.contrib.rnn.DropoutWrapper(rnnCell, input_keep_prob=1.0, output_keep_prob=self.output_dropout)
         if self.num_layers > 1:
@@ -93,15 +90,15 @@ class Seq2seq(object):
         else:
             cell = rnnCellDropout
 
-        self.saver = tf.train.Saver()
-
         decoderOutputs, states = tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(encoder_inputs=self.encoder_inputs,
-                                                                           decoder_inputs=self.decoder_inputs, cell=cell,
-                                                                           num_encoder_symbols=self.source_vocab_size,
-                                                                           num_decoder_symbols=self.target_vocab_size,
-                                                                           embedding_size=self.embedding_size,
-                                                                           output_projection=output_projection,
-                                                                           feed_previous=test)
+                                                                                       decoder_inputs=self.decoder_inputs,
+                                                                                       cell=cell,
+                                                                                       num_encoder_symbols=self.source_vocab_size,
+                                                                                       num_decoder_symbols=self.target_vocab_size,
+                                                                                       embedding_size=self.embedding_size,
+                                                                                       output_projection=output_projection,
+                                                                                       feed_previous=test)
+
         if test:
             if not output_projection:
                 self.decoder_outputs = decoderOutputs
@@ -110,8 +107,10 @@ class Seq2seq(object):
 
         else:
             self.loss_func = tf.contrib.legacy_seq2seq.sequence_loss(decoderOutputs, self.decoder_targets, self.decoder_weights,
-                                               self.target_vocab_size, softmax_loss_function=softmax_loss_function)
+                                                                     self.target_vocab_size, softmax_loss_function=softmax_loss_function)
             self.optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(self.loss_func)
+
+        self.saver = tf.train.Saver()
 
     def step(self, batch, test=False):
         feed_dict = {}

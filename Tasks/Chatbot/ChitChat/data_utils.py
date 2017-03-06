@@ -23,14 +23,31 @@ class DataUtils(object):
         self.batchSize = batchSize
         self.data_conversation_dir = data_conversation_dir
 
-        with open(data_conversation_dir, 'r') as f:
+        self.padToken = -1
+        self.goToken = -1
+        self.eosToken = -1
+        self.unknownToken = -1
+
+        self.trainingSamples = []
+        self.word2id = {}
+        self.id2word = {}
+
+    def loaddata(self):
+        with open(self.data_conversation_dir, 'rb') as f:
             data = pickle.load(f)
             self.trainingSamples = data['trainingSamples']
             self.word2id = data['word2id']
             self.id2word = data['id2word']
 
-        self.source_vocab_size = len(self.word2id)
-        self.target_vocab_size = len(self.word2id)
+            self.padToken = self.getWordId("<pad>")
+            self.goToken = self.getWordId("<go>")
+            self.eosToken = self.getWordId("<eos>")
+            self.unknownToken = self.getWordId("<unknown>")
+
+        source_vocab_size = len(self.word2id)
+        target_vocab_size = len(self.id2word)
+
+        return source_vocab_size, target_vocab_size
 
     def shuffle(self):
         random.shuffle(self.trainingSamples)

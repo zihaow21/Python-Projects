@@ -41,6 +41,7 @@ class DataUtils(object):
         self.goToken = self.getWordId("<go>")
         self.eosToken = self.getWordId("<eos>")
         self.unknownToken = self.getWordId("<unknown>")
+
         print "conversation length is {}".format(len(self.conversations))
         for conversation in tqdm(self.conversations):
             self.createConversation(conversation)
@@ -120,7 +121,7 @@ class DataUtils(object):
             'id2word': self.id2word,
             'trainingSamples': self.trainingSamples
         }
-        with open(self.data_conversation_dir, 'w') as f:
+        with open(self.data_conversation_dir, 'wb') as f:
             pickle.dump(data, f)
 
 du = DataUtils(conversations, 20, data_conversation_dir)
