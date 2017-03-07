@@ -21,15 +21,5 @@ class NewsRetrival(object):
             data = self.es.search(index="news", body={"query": {"bool": {"should": [{"match": {"headline": "{}".format(mQuery)}},
                                                                                {"match": {
                                                                                    "theme": "{}".format(mQuery)}}]}}})
-            i = 0
-            print("Recommend News Links-->\n")
-            for rcmd in data['hits']['hits']:
-                i += 1
-                if i > 3:  # only recommend the first three most revelent news
-                    break
-                print (rcmd['_source']['headline'])  # change 'contenturl' to 'body', 'headline', 'theme' and so on
-            print('\n')
-            if mQuery == "exit":
-                q = False
 
-        return rcmd['_source']['headline']
+            return data['hits']['hits'][0]
