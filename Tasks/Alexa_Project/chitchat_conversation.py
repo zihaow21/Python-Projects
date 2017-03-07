@@ -21,9 +21,9 @@ def start_skill():
     return question(welcome_message)
 
 @ask.intent("UserInput")
-def conversation(sentence):
+def conversation(sentence, mydate, durations, years, numbers, times, politician):
     # response = chitchat(query)
-    return statement(sentence)
+    return statement("All the inputs are {}, {}, {}, {}, {}, {}, {}".format(sentence, mydate, durations, years, numbers, times, politician))
 
 @ask.intent("ExitIntent")
 def exit_intent():
