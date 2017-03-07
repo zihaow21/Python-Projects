@@ -22,4 +22,8 @@ class NewsRetrival(object):
                                                                                {"match": {
                                                                                    "theme": "{}".format(mQuery)}}]}}})
 
-            return data['hits']['hits'][0]
+            if data['hits']['hits']:
+                print data['hits']['hits'][0]['_source']
+                return data['hits']['hits'][0]['_source']
+            else:
+                return [None, "sorry, I don't know, would you like a video clip instead"]

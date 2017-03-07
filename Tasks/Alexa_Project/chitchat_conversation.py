@@ -2,9 +2,12 @@ from flask import Flask
 from flask_ask import Ask, statement, question
 from Tasks.Chatbot_Practice.chitchat_component import ChitChat
 from news_retrieve import NewsRetrival
+# from nltk.tokenize import RegexpTokenizer
+import re
 
 
 newsRetrieval = NewsRetrival()
+# tokenizer = RegexpTokenizer(r'\w+')
 
 app = Flask(__name__)
 ask = Ask(app, "/emersonbot")
@@ -20,7 +23,7 @@ def homepage():
 
 @ask.launch
 def start_skill():
-    welcome_message = "Hello there, what's up?"
+    welcome_message = "Hello there, my name is emerson bot, what can I do for you?"
     return question(welcome_message)
 
 @ask.intent("NewsInput")
@@ -30,23 +33,35 @@ def newsComponent(news, time, usplaces, regions, cities):
     usplaces = usplaces
     regions = regions
     cities = cities
-    if news != None:
-        newsRetrieval.search("{}, {}, {}, {}".format(news, time, usplaces, regions, cities))
+    if news:
+        data = newsRetrieval.search("{}, {}, {}, {}".format(news, time, usplaces, regions, cities))
 
-    else:
-        furtherAsk(news)
-        if yesIntent():
-            result = newsRetrieval.search("{}, {}, {}, {}".format(news, time, usplaces, regions, cities))
+        if len(data) == 2:
+            result = data[1]
+            result = ''.join([i if ord(i) < 128 else ' ' for i in result])
+            return statement(result)
+
         else:
-            return question("what can I do for you then")
-
-    print "News inputs are {}, {}, {}, {}, {}".format(news, time, usplaces, regions, cities)
-
-    return statement("here is the news headlines".format(result))
+            headlines = data['headline']
+            headlines = ''.join([i if ord(i) < 128 else ' ' for i in headlines])
+            body = data['body']
+            body = ''.join([i if ord(i) < 128 else ' ' for i in body])
+            return statement("here is the news headlines and details. {} {}".format(headlines, body))
+    else:
+        furtherAsk("the news")
+        if yesIntent():
+            data = newsRetrieval.search("{}, {}, {}, {}".format(news, time, usplaces, regions, cities))
+            headlines = data['headline']
+            headlines = ''.join([i if ord(i) < 128 else ' ' for i in headlines])
+            body = data['body']
+            body = ''.join([i if ord(i) < 128 else ' ' for i in body])
+            return statement("here is the news headline and the details. {} {}".format(headlines, body))
+        else:
+            return question("what can I do for you then.")
 
 @ask.intent("GeneralUtterance")
 def general(sentence):
-    print "the general utterance is {}".format(sentence)
+    print "I have been prepared well yet, so I am echoing you. {}".format(sentence)
     return statement("{}".format(sentence))
 
 @ask.intent("AMAZON.StopIntent")
@@ -63,7 +78,7 @@ def noIntent():
     return False
 
 def furtherAsk(info):
-    return question("Do you want to know about {}".format(info))
+    return question("Do you want to know about {} or something else".format(info))
 
 if __name__ == '__main__':
     app.run(debug=True)
