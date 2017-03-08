@@ -63,9 +63,13 @@ def general(sentence):
     print "I have been prepared well yet, so I am echoing you. {}".format(sentence)
     return statement("{}".format(sentence))
 
-@ask.intent("AMAZON.SearchAction<object@WeatherForecast>")
-def weather(object):
-    location = object.location.addressLocality.name
+@ask.intent("WeatherInfo")
+def weather(loc):
+    if loc == None:
+        location = "atlanta GA"
+    else:
+        location = loc
+
     forcast = WeatherForecast(location)
     current_info, forecasts_info = forcast.weatherInfo()
     return statement(current_info)
