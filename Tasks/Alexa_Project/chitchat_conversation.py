@@ -1,5 +1,6 @@
 from flask import Flask, render_template
-from flask_ask import Ask, statement, question
+from flask_ask import Ask, statement, question, session, request, context
+import logging
 from Tasks.Chatbot_Practice.chitchat_component import ChitChat
 from news_retrieve import NewsRetrival
 from weather_forcast import WeatherForecast
@@ -10,6 +11,7 @@ newsRetrieval = NewsRetrival()
 
 app = Flask(__name__)
 ask = Ask(app, "/emersonbot")
+log = logging.getLogger('flask_ask').setLevel(logging.DEBUG)
 
 # def chitchat(query):
 #     cc = ChitChat()
@@ -27,6 +29,13 @@ def start_skill():
 
 @ask.intent("NewsInput")
 def newsComponent(news, time, usplaces, regions, cities):
+    log.info("Request ID: {}".format(request.requestId))
+    log.info("Request TP: {}".format(request.type))
+    log.info("Request TS: {}".format(request.timestamp))
+    log.info("Request LC: {}".format(request.locale))
+    print context
+    print session
+
     news = news
     time = time
     usplaces = usplaces
