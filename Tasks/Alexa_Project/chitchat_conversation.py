@@ -2,8 +2,7 @@ from flask import Flask
 from flask_ask import Ask, statement, question
 from Tasks.Chatbot_Practice.chitchat_component import ChitChat
 from news_retrieve import NewsRetrival
-# from nltk.tokenize import RegexpTokenizer
-import re
+from weather_forcast import WeatherForecast
 
 
 newsRetrieval = NewsRetrival()
@@ -67,9 +66,9 @@ def general(sentence):
 @ask.intent("AMAZON.SearchAction<object@WeatherForecast>")
 def weather(object):
     location = object.location.addressLocality.name
-    date = object.startDate
-    
-    return
+    forcast = WeatherForecast(location)
+    current_info, forecasts_info = forcast.weatherInfo()
+    return statement(current_info)
 
 @ask.intent("AMAZON.StopIntent")
 def exit_intent():
@@ -86,6 +85,8 @@ def noIntent():
 
 def furtherAsk(info):
     return question("Do you want to know about {} or something else".format(info))
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
