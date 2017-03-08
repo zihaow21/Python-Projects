@@ -66,6 +66,8 @@ def general(sentence):
 
 @ask.intent("AMAZON.SearchAction<object@WeatherForecast>")
 def weather(object):
+    location = object.location.addressLocality.name
+    date = object.startDate
     
     return
 

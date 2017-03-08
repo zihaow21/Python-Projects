@@ -20,10 +20,14 @@ class NewsRetrival(object):
             mQuery = unicode(mQuery, "utf-8")
             data = self.es.search(index="news", body={"query": {"bool": {"should": [{"match": {"headline": "{}".format(mQuery)}},
                                                                                {"match": {
-                                                                               "theme": "{}".format(mQuery)}}]}}})
-
-            if data['hits']['hits']:
-                print data['hits']['hits'][0]['_source']
-                return data['hits']['hits'][0]['_source']
-            else:
-                return [None, "sorry, I don't know, would you like a video clip instead"]
+                                                                                   "theme": "{}".format(mQuery)}}]}}})
+            i = 0
+            print("Recommend News Links-->\n")
+            for rcmd in data['hits']['hits']:
+                i += 1
+                if i > 3:  # only recommend the first three most revelent news
+                    break
+                print (rcmd['_source']['contenturl'])  # change 'contenturl' to 'body', 'headline', 'theme' and so on
+            print('\n')
+            if mQuery == "exit":
+                q = False
