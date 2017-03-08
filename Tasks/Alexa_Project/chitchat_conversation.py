@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_ask import Ask, statement, question
 from Tasks.Chatbot_Practice.chitchat_component import ChitChat
 from news_retrieve import NewsRetrival
@@ -23,7 +23,7 @@ def homepage():
 @ask.launch
 def start_skill():
     welcome_message = "Hello there, my name is emerson bot, what can I do for you?"
-    return question(welcome_message)
+    return question(welcome_message).reprompt("hello are you there?")
 
 @ask.intent("NewsInput")
 def newsComponent(news, time, usplaces, regions, cities):
@@ -45,7 +45,7 @@ def newsComponent(news, time, usplaces, regions, cities):
             headlines = ''.join([i if ord(i) < 128 else ' ' for i in headlines])
             body = data['body']
             body = ''.join([i if ord(i) < 128 else ' ' for i in body])
-            return statement("here is the news headlines and details. {} {}".format(headlines, body))
+            return question("here is the news headlines and details. {} {}".format(headlines, body)).reprompt("Would you like the details of the news?")
     else:
         furtherAsk("the news")
         if yesIntent():
