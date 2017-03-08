@@ -64,6 +64,11 @@ def general(sentence):
     print "I have been prepared well yet, so I am echoing you. {}".format(sentence)
     return statement("{}".format(sentence))
 
+@ask.intent("AMAZON.SearchAction<object@WeatherForecast>")
+def weather(object):
+    
+    return
+
 @ask.intent("AMAZON.StopIntent")
 def exit_intent():
     exit_message = "It was greating talking to you. Have a great one!"
