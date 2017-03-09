@@ -7,6 +7,7 @@ class WeatherForecast(object):
     def weatherInfo(self):
         loc_id = pywapi.get_loc_id_from_weather_com(self.location)[0][0]
         data = pywapi.get_weather_from_weather_com(loc_id, units='imperial')
+        # print data
         conditions = data['current_conditions']
         temperature = conditions['temperature']
         feels_like = conditions['feels_like']
@@ -65,6 +66,6 @@ class WeatherForecast(object):
         return current_info, forcasts_info
 
 
-
-# wf = WeatherForecast("atlanta Georgia")
+#
+# wf = WeatherForecast("atlanta")
 # string = wf.weatherInfo()
