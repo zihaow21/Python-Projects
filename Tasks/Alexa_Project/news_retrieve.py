@@ -1,29 +1,27 @@
-import json
 from elasticsearch import Elasticsearch
+from termcolor import colored
 
 
 class NewsRetrival(object):
     def __init__(self):
-        self.es = Elasticsearch()  # use default of localhost, port 9200
-        with open("./merge.json") as fo:
-            self.doc = json.load(fo)
-        for art in self.doc['docs']:
-            self.es.index(index='news', doc_type='article', id=art['id'], body=art)
+        self.es = Elasticsearch()
 
     def search(self, mQuery):
-        q = True
+        # print colored(mQuery, 'red')
+        mQuery = mQuery.replace("None", "")
+        # print colored(mQuery, 'green')
+        # mQuery = raw_input("What do you what to ask?\n")
+        mQuery = unicode(mQuery, "utf-8")
 
-        while q:
-            # mQuery = raw_input("What do you what to ask?\n")
-            print("Finish token :)\n")
-            print("Start News Matching...\n")
-            mQuery = unicode(mQuery, "utf-8")
-            data = self.es.search(index="news", body={"query": {"bool": {"should": [{"match": {"headline": "{}".format(mQuery)}},
-                                                                               {"match": {
-                                                                               "theme": "{}".format(mQuery)}}]}}})
+        data = self.es.search(index="news", body={"query": {"bool": {"should": [{"match": {"headline": "{}".format(mQuery)}},{"match": {"body": "{}".format(mQuery)}},
+                                                                               {"match": {"theme": "{}".format(mQuery)}}]}}})
 
-            if data['hits']['hits']:
-                print data['hits']['hits'][0]['_source']
-                return data['hits']['hits'][0]['_source']
-            else:
-                return [None, "sorry, I don't know, would you like a video clip instead"]
+        if data['hits']['hits']:
+            print colored("the current search result is {}".format(data['hits']['hits'][0]['_source']), 'red')
+            return data['hits']['hits'][0]['_source']
+        else:
+            return [None, "sorry, I don't know, would you like a video clip instead"]
+
+# newsRetrieve = NewsRetrival()
+# data = newsRetrieve.search("latest news, Barak Obama")
+# print "the current search result is {}".format(data)

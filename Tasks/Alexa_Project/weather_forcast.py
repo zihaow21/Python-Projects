@@ -53,7 +53,7 @@ class WeatherForecast(object):
             sun_rise.append(f["sunrise"])
             sun_set.append([f["sunset"]])
 
-        current_info= "Yes, of course. . . The overall weather is {}. The current temperature is {}. Feels like {}. " \
+        current_info= "Here is the weather infomation. The overall weather is {}. The current temperature is {}. Feels like {}. " \
                       "Wind speed is {}. Visibility is {}. UV level is {}.".format(text, temperature, feels_like,
                                                                                    wind_speed, visibility, uv_level)
         forcasts_info = "Sure. The forecasts for the following days are"

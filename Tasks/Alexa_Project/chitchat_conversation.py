@@ -19,6 +19,7 @@ log = logging.getLogger('flask_ask').setLevel(logging.DEBUG)
 #     response = cc.mainTest(query)
 #     return response
 
+
 @app.route('/')
 def homepage():
     return "Hi, there how are you?"
@@ -33,15 +34,14 @@ def new_session():
     log.info('new session started')
 
 @ask.intent("NewsInput")
-def newsComponent(news, time, usplaces, regions, cities):
-
-    news = news
-    time = time
+def newsComponent(topics, usplaces, regions, cities):
+    topics = topics
     usplaces = usplaces
     regions = regions
     cities = cities
-    if news:
-        data = newsRetrieval.search("{}, {}, {}, {}".format(news, time, usplaces, regions, cities))
+    session.attributes = dict()
+    if topics:
+        data = newsRetrieval.search("{}, {}, {}, {}".format(topics, usplaces, regions, cities))
 
         if len(data) == 2:
             result = data[1]
@@ -50,11 +50,12 @@ def newsComponent(news, time, usplaces, regions, cities):
 
         else:
             headlines = data['headline']
+            print headlines
             headlines = ''.join([i if ord(i) < 128 else ' ' for i in headlines])
             body = data['body']
             body = ''.join([i if ord(i) < 128 else ' ' for i in body])
-            session.attributes = dict()
             session.attributes["body"] = body
+
             return question("here is the news headlines. {}. Would you like the details of the news?".format(headlines))
 
 # @ask.intent("AMAZON.YesIntent")
@@ -64,6 +65,7 @@ def newsComponent(news, time, usplaces, regions, cities):
 
 @ask.intent("WeatherInfo")
 def weather_today(loc):
+    session.attributes = dict()
     if loc == None:
         location = "atlanta"
     else:
@@ -72,31 +74,40 @@ def weather_today(loc):
     print "the session format is {}".format(session)
 
     forcast = WeatherForecast(location)
-    session.attributes = dict()
     current_info, forecasts_info = forcast.weatherInfo()
     session.attributes["forecasts"] = forecasts_info
     return question(current_info + ". would you like forecasts for the following five days?")
 
 @ask.intent("AMAZON.YesIntent")
-def specific_match():
+def yes_specific_match():
     key = session.attributes.keys()[0]
     if key == "forecasts":
         forecasts_info = session.attributes["forecasts"]
-        return question(forecasts_info + ". what is your plan today?")
+        return question(forecasts_info + ". so, what is your plan today?")
     elif key == "body":
         body = session.attributes["body"]
-        return question("here is the news details. {}. what is your opinion?".format(body))
+        return question("here is the news details. {}. Would you like to have some comments".format(body))
 
-# @ask.intent("AMAZON.YesIntent")
-# def weather_forecasts():
-#     forecasts_info = session.attributes["forecasts"]
-#     return question(forecasts_info).reprompt("what is your plan today?")
+@ask.intent("GeneralNoIntent")
+def no_specific_match(response):
+    key = session.attributes.keys()[0]
+    if key == "forecasts":
+        return question("OK, then. what would you like now. Some jokes?")
+    elif key == "body":
+        return question("OK, then. what would you like now. Some jokes?")
+
+# @ask.intent("Amazon.NoInTent")
+# def no_specific_match(response):
+#     key = session.attributes.keys()[0]
+#     if key == "forecasts":
+#         return question("OK, then. what can I do for you now")
+#     elif key == "body":
+#         return question("OK, then. what can I do for you now")
 
 @ask.intent("GeneralUtterance")
 def general(sentence):
     print "I have not been prepared well yet, so I am echoing you. {}".format(sentence)
     return statement("{}".format(sentence))
-
 
 @ask.intent("AMAZON.StopIntent")
 def exit_intent():
