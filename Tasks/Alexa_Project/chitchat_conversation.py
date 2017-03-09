@@ -46,7 +46,7 @@ def newsComponent(news, time, usplaces, regions, cities):
         if len(data) == 2:
             result = data[1]
             result = ''.join([i if ord(i) < 128 else ' ' for i in result])
-            return question(result).reprompt("sorry, I know this is a bad joke. So, what can I do for you now?")
+            return question(result + ". sorry, I know this is a bad joke. So, what can I do for you now?")
 
         else:
             headlines = data['headline']
@@ -55,7 +55,7 @@ def newsComponent(news, time, usplaces, regions, cities):
             body = ''.join([i if ord(i) < 128 else ' ' for i in body])
             session.attributes = dict()
             session.attributes["body"] = body
-            return question("here is the news headlines. {}".format(headlines)).reprompt("Would you like the details of the news?")
+            return question("here is the news headlines. {}. Would you like the details of the news?".format(headlines))
 
 # @ask.intent("AMAZON.YesIntent")
 # def news_detail():
@@ -75,17 +75,17 @@ def weather_today(loc):
     session.attributes = dict()
     current_info, forecasts_info = forcast.weatherInfo()
     session.attributes["forecasts"] = forecasts_info
-    return question(current_info).reprompt("would you like forecasts for following five days?")
+    return question(current_info + ". would you like forecasts for the following five days?")
 
 @ask.intent("AMAZON.YesIntent")
 def specific_match():
     key = session.attributes.keys()[0]
     if key == "forecasts":
         forecasts_info = session.attributes["forecasts"]
-        return question(forecasts_info).reprompt("what is your plan today?")
+        return question(forecasts_info + ". what is your plan today?")
     elif key == "body":
         body = session.attributes["body"]
-        return question("here is the news details. {}".format(body)).reprompt("what is your opinion?")
+        return question("here is the news details. {}. what is your opinion?".format(body))
 
 # @ask.intent("AMAZON.YesIntent")
 # def weather_forecasts():
@@ -102,6 +102,10 @@ def general(sentence):
 def exit_intent():
     exit_message = "It was greating talking to you. Have a great one!"
     return statement(exit_message)
+
+@ask.session_ended
+def session_ended():
+    return "", 500
 
 if __name__ == '__main__':
     app.run(debug=True)
