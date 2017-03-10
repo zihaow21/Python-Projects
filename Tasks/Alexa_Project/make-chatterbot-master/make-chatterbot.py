@@ -11,46 +11,54 @@ import os
 import argparse
 from MyKernel import MyKernel
 
-BOT_PREDICATES = {
-    "name": "KanoBot",
-    "birthday": "January 1st 1969",
-    "location": "London",
-    "master": "Judoka",
-    "website":"https://github.com/brandonjackson/make-chatterbot",
-    "gender": "",
-    "age": "",
-    "size": "",
-    "religion": "",
-    "party": ""
-}
 
-DEVNULL = open(os.devnull, 'wb')
+class ChitChat(object):
+    def __init__(self):
+        self.BOT_PREDICATES = {
+            "name": "KanoBot",
+            "birthday": "January 1st 1969",
+            "location": "London",
+            "master": "Judoka",
+            "website":"https://github.com/brandonjackson/make-chatterbot",
+            "gender": "",
+            "age": "",
+            "size": "",
+            "religion": "",
+            "party": ""
+        }
 
-k = MyKernel()
+
+        self.DEVNULL = open(os.devnull, 'wb')
+
+        self.k = MyKernel()
  
 # Load the AIML files on first load, and then save as "brain" for speedier startup
-if os.path.isfile("cache/standard.brn") is False:
-    k.learn("aiml/standard/std-startup.xml")
-    k.respond("load aiml b")
-    k.saveBrain("cache/standard.brn")
-else:
-    k.loadBrain("cache/standard.brn")
- 
-# Give the bot a name and lots of other properties
-for key,val in BOT_PREDICATES.items():
-    k.setBotPredicate(key, val)
+        if os.path.isfile("cache/standard.brn") is False:
+            self.k.learn("aiml/standard/std-startup.xml")
+            self.k.respond("load aiml b")
+            self.k.saveBrain("cache/standard.brn")
+        else:
+            self.k.loadBrain("cache/standard.brn")
+
+        # Give the bot a name and lots of other properties
+        for key,val in self.BOT_PREDICATES.items():
+            self.k.setBotPredicate(key, val)
 
 # Start Infinite Loop
-while True:
+    def chat(self, sentence):
     # Prompt user for input
-    input = raw_input("> ")
-
+    #     input = raw_input("> ")
+        input = sentence
     # Send input to bot and print chatbot's response
-    matchedPattern = k.matchedPattern(input) # note: this has to come before the 
+        matchedPattern = self.k.matchedPattern(input) # note: this has to come before the
                                              # call to respond as to reflect
                                              # the correct history
-    response = k.respond(input)
-    print response
+        response = self.k.respond(input)
+        return response
+
+# chitchat = ChitChat()
+# response = chitchat.chat("how are you")
+# print response
     # if SHOW_MATCHES:
     #     print "Matched Pattern: "
     #     print k.formatMatchedPattern(matchedPattern[0])

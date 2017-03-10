@@ -17,8 +17,8 @@ class NewsRetrival(object):
                                                                                {"match": {"theme": "{}".format(mQuery)}}]}}})
 
         if data['hits']['hits']:
-            print colored("the current search result is {}".format(data['hits']['hits'][0]['_source']), 'red')
-            return data['hits']['hits'][0]['_source']
+            print data['hits']['hits']
+            return data['hits']['hits']
         else:
             return [None, "sorry, I don't know, would you like a video clip instead"]
 

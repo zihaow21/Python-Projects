@@ -3,6 +3,7 @@ import pywapi
 class WeatherForecast(object):
     def __init__(self, location):
         self.location = location
+        self.result = dict()
 
     def weatherInfo(self):
         loc_id = pywapi.get_loc_id_from_weather_com(self.location)[0][0]
@@ -53,17 +54,18 @@ class WeatherForecast(object):
             sun_rise.append(f["sunrise"])
             sun_set.append([f["sunset"]])
 
-        current_info= "Here is the weather infomation. The overall weather is {}. The current temperature is {}. Feels like {}. " \
+        self.result["current_info"]= "Here is the weather infomation. The overall weather is {}. The current temperature is {}. Feels like {}. " \
                       "Wind speed is {}. Visibility is {}. UV level is {}.".format(text, temperature, feels_like,
                                                                                    wind_speed, visibility, uv_level)
-        forcasts_info = "Sure. The forecasts for the following days are"
-        for i in range (len(forecasts)):
-            forcasts_info += " {}, {}, temperature high {}, temperature low {}, {}, " \
+        self.result["forecasts_info"] = []
+
+        for i in range(len(forecasts)):
+            self.result["forecasts_info"].append(" {}, {}, temperature high {}, temperature low {}, {}, " \
                             "{} wind, chance of precipitation {} percent. sun rise {}, sun set {}, {}" \
                             "during the night, chance of precipitation {}, {} wind".format(day[i], date[i],
                             temp_high[i], temp_low[i], brief_text_day[i], wind_text_day[i], chance_precipitation_day[i],
-                            sun_rise[i], sun_set[i], brief_text_night[i], chance_precipitation_night[i], wind_text_night[i])
-        return current_info, forcasts_info
+                            sun_rise[i], sun_set[i], brief_text_night[i], chance_precipitation_night[i], wind_text_night[i]))
+        return self.result
 
 
 #
